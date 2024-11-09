@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import {
   Table,
   TableBody,
@@ -28,6 +28,10 @@ import {
 
 import { motion } from "framer-motion"
 import { Helmet } from "react-helmet"
+import { fetchWorkflows, ApiWorkflow } from "@/lib/API"
+import { ToastContainer, toast } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
+import { HashLoader } from "react-spinners"
 
 interface Workflow {
   id: string
@@ -38,41 +42,50 @@ interface Workflow {
   createdAt: string
 }
 
-const initialWorkflows: Workflow[] = [
-  {
-    id: "1",
-    userName: "John Doe",
-    workflowId: "WF-001",
-    workflowName: "Daily Report Generation",
-    lastUpdated: "2024-05-15",
-    createdAt: "2024-05-01",
-  },
-  {
-    id: "2",
-    userName: "Jane Smith",
-    workflowId: "WF-002",
-    workflowName: "Weekly Data Analysis",
-    lastUpdated: "2024-05-14",
-    createdAt: "2024-04-28",
-  },
-  {
-    id: "3",
-    userName: "Bob Johnson",
-    workflowId: "WF-003",
-    workflowName: "Monthly Financial Review",
-    lastUpdated: "2024-05-10",
-    createdAt: "2024-03-15",
-  },
-]
-
 export default function WorkflowList() {
-  const [workflows, setWorkflows] = useState<Workflow[]>(initialWorkflows)
+  const [workflows, setWorkflows] = useState<Workflow[]>([])
+  const [loading, setLoading] = useState<boolean>(false)
+  const toastShownRef = useRef<boolean>(false)
+
   const [searchTerm, setSearchTerm] = useState("")
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editForm, setEditForm] = useState<Workflow | null>(null)
 
   console.log("Workflows:", workflows)
   console.log("Search Term:", searchTerm)
+
+  useEffect(() => {
+    const loadWorkflows = async () => {
+      setLoading(true)
+      try {
+        const apiWorkflows: ApiWorkflow[] = await fetchWorkflows(100)
+        setWorkflows(
+          apiWorkflows.map((item) => ({
+            id: item.WorkFlowId.toString(),
+            userName: item.UserName,
+            workflowId: item.WorkFlowId.toString(),
+            workflowName: item.WorkFlowName,
+            lastUpdated: item.LastUpdated,
+            createdAt: item.CreatedAt,
+          }))
+        )
+        if (!toastShownRef.current) {
+          toast.success("Get workflows successfully!")
+          toastShownRef.current = true
+        }
+      } catch (error) {
+        console.error("Error loading workflows:", error)
+        if (!toastShownRef.current) {
+          toast.error("Error loading workflows!")
+          toastShownRef.current = true
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadWorkflows()
+  }, [])
 
   const filteredWorkflows = workflows.filter((workflow) => {
     console.log("Current Workflow:", workflow)
@@ -124,6 +137,7 @@ export default function WorkflowList() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[conic-gradient(at_top_right,_var(--tw-gradient-stops))] from-zinc-700 via-slate-800 to-zinc-800">
+      <ToastContainer />
       <Helmet>
         <link
           rel="icon"
@@ -200,92 +214,109 @@ export default function WorkflowList() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredWorkflows.map((workflow) => (
-                        <TableRow key={workflow.id}>
-                          {(Object.keys(workflow) as Array<keyof Workflow>).map(
-                            (key) =>
-                              key !== "id" && (
-                                <TableCell
-                                  key={key}
-                                  className="p-2"
-                                >
-                                  <div className="min-h-[2.5rem] flex items-center">
-                                    {editingId === workflow.id ? (
-                                      <Input
-                                        value={
-                                          editForm
-                                            ? editForm[key]
-                                            : workflow[key]
-                                        }
-                                        onChange={(e) =>
-                                          handleEditFormChange(
-                                            key,
-                                            e.target.value
-                                          )
-                                        }
-                                        className="w-full h-9 min-h-[2.5rem]"
-                                      />
-                                    ) : (
-                                      <span className="truncate">
-                                        {workflow[key]}
-                                      </span>
-                                    )}
-                                  </div>
-                                </TableCell>
-                              )
-                          )}
-                          <TableCell className="p-2">
-                            <div className="flex justify-end space-x-2">
-                              {editingId === workflow.id ? (
-                                <>
-                                  <Button
-                                    onClick={saveEditing}
-                                    size="sm"
-                                    variant="outline"
-                                    className="h-9 px-2 py-1"
-                                  >
-                                    <Check className="h-4 w-4" />
-                                  </Button>
-                                  <Button
-                                    onClick={cancelEditing}
-                                    size="sm"
-                                    variant="outline"
-                                    className="h-9 px-2 py-1"
-                                  >
-                                    <X className="h-4 w-4" />
-                                  </Button>
-                                </>
-                              ) : (
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button
-                                      variant="ghost"
-                                      className="h-9 w-9 p-0"
-                                    >
-                                      <span className="sr-only">Open menu</span>
-                                      <MoreVertical className="h-4 w-4" />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end">
-                                    <DropdownMenuItem
-                                      onClick={() => startEditing(workflow)}
-                                    >
-                                      <Edit className="mr-2 h-4 w-4" />
-                                      <span>Edit</span>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                      onClick={() => deleteWorkflow()}
-                                    >
-                                      <Trash2 className="mr-2 h-4 w-4" />
-                                      <span>Delete</span>
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              )}
+                      {loading ? (
+                        <TableRow>
+                          <TableCell
+                            colSpan={6}
+                            className="p-4"
+                          >
+                            <div className="flex justify-center">
+                              <HashLoader color="#272e3f" />
                             </div>
                           </TableCell>
                         </TableRow>
-                      ))}
+                      ) : (
+                        filteredWorkflows.map((workflow) => (
+                          <TableRow key={workflow.id}>
+                            {(
+                              Object.keys(workflow) as Array<keyof Workflow>
+                            ).map(
+                              (key) =>
+                                key !== "id" && (
+                                  <TableCell
+                                    key={key}
+                                    className="p-2"
+                                  >
+                                    <div className="min-h-[2.5rem] flex items-center">
+                                      {editingId === workflow.id ? (
+                                        <Input
+                                          value={
+                                            editForm
+                                              ? editForm[key]
+                                              : workflow[key]
+                                          }
+                                          onChange={(e) =>
+                                            handleEditFormChange(
+                                              key,
+                                              e.target.value
+                                            )
+                                          }
+                                          className="w-full h-9 min-h-[2.5rem]"
+                                        />
+                                      ) : (
+                                        <span className="truncate">
+                                          {workflow[key]}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </TableCell>
+                                )
+                            )}
+                            <TableCell className="p-2">
+                              <div className="flex justify-end space-x-2">
+                                {editingId === workflow.id ? (
+                                  <>
+                                    <Button
+                                      onClick={saveEditing}
+                                      size="sm"
+                                      variant="outline"
+                                      className="h-9 px-2 py-1"
+                                    >
+                                      <Check className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      onClick={cancelEditing}
+                                      size="sm"
+                                      variant="outline"
+                                      className="h-9 px-2 py-1"
+                                    >
+                                      <X className="h-4 w-4" />
+                                    </Button>
+                                  </>
+                                ) : (
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button
+                                        variant="ghost"
+                                        className="h-9 w-9 p-0"
+                                      >
+                                        <span className="sr-only">
+                                          Open menu
+                                        </span>
+                                        <MoreVertical className="h-4 w-4" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                      <DropdownMenuItem
+                                        onClick={() => startEditing(workflow)}
+                                      >
+                                        <Edit className="mr-2 h-4 w-4" />
+                                        <span>Edit</span>
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem
+                                        onClick={() => deleteWorkflow()}
+                                      >
+                                        <Trash2 className="mr-2 h-4 w-4" />
+                                        <span>Delete</span>
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
                     </TableBody>
                   </Table>
                 </div>
