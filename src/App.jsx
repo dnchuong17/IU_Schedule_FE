@@ -5,7 +5,7 @@ import Register from "./components/Login_Register/register.jsx";
 import Filters from './components/Timetable/Filters.jsx'; // Adjust the path if necessary
 import Header from "./components/Header_Footer/header.jsx";
 import Footer from "./components/Header_Footer/footer.jsx";
-// import Filters from "./components/Timetable/Filters.jsx"
+import ScheduleView from "./components/Schedule/ScheduleView.jsx";
 
 
 const App = () => {
@@ -20,14 +20,14 @@ const App = () => {
             <div className="bg-[#ffff] absolute -z-10 top-[-1rem] left-[-35rem] h-[31.25rem] w-[50rem] rounded-full blur-[10rem] md:left-[-33rem] lg:left-[-28rem] xl:left-[-15rem] 2xl:left-[-5rem]"></div>
             <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
                 <div>
-                    <Filters />
+                    {/* <Filters /> */}
                 </div>
                 <Routes>
 
                     <Route path="/" element={<DeadlinePopUp />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
-
+                    <Route path="/schedule" element={<ScheduleView />} />
                 </Routes>
             </div>
             <Footer />
