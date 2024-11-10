@@ -5,6 +5,7 @@ import Register from "./components/Login_Register/register.jsx";
 import Filters from './components/Timetable/Filters.jsx'; // Adjust the path if necessary
 import Header from "./components/Header_Footer/header.jsx";
 import Footer from "./components/Header_Footer/footer.jsx";
+import WorkflowList from "@/pages/WorkflowList.js";
 // import Filters from "./components/Timetable/Filters.jsx"
 
 
@@ -27,7 +28,10 @@ const App = () => {
                     <Route path="/" element={<DeadlinePopUp />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
-
+                    <Route
+                        path="/admin/WorkflowList"
+                        element={<WorkflowList />}
+                    />
                 </Routes>
             </div>
             <Footer />
