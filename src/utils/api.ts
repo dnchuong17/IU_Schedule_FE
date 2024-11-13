@@ -6,7 +6,7 @@ export class Api {
 
     constructor() {
         this.axiosObject = axios.create({
-            baseURL: "http://localhost:2024",
+            baseURL: "http://localhost:3000",
             withCredentials: true, // Cho phép gửi cookie và thông tin xác thực khác trong các yêu cầu
         });
     }
