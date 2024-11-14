@@ -7,6 +7,9 @@ import NotificationPopUp from "./components/Schedule/NotificationPopUp"
 import Login from "./components/Login_Register/login.tsx"
 import Register from "./components/Login_Register/register.tsx"
 
+import ScheduleView from "./components/Schedule/ScheduleView";
+import Footer from "./components/Header_Footer/footer.tsx";
+import Header from "./components/Header_Footer/header.tsx";
 // import Filters from '../src/components/Timetable/Filters.tsx';
 // import Footer from "./components/Header_Footer/footer.tsx";
 
@@ -17,6 +20,7 @@ function App() {
     return (
         <div>
             <Router>
+            <Header />
                 <Routes>
                     <Route
                         path="/admin/WorkflowList"
@@ -42,7 +46,11 @@ function App() {
                         path="/register"
                         element={<Register/>}
                     />
+                    <Route 
+                        path="/scheduleView" 
+                        element={<ScheduleView />} />
                 </Routes>
+                <Footer />
             </Router>
         </div>
     )
