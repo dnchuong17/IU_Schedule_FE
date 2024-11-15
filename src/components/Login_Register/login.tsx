@@ -1,36 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { Api } from "../../utils/api";
-import { LoginRequest } from "../../utils/request/loginRequest"; // Import lớp LoginRequest
+import { LoginRequest } from "../../utils/request/loginRequest";
 import { FaUser, FaLock } from 'react-icons/fa';
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useNavigate } from 'react-router-dom';
 
-const Login = () => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [focusedInput, setFocusedInput] = useState({ username: false, password: false });
-    const [showPassword, setShowPassword] = useState(false);
-    const [loginMessage, setLoginMessage] = useState(''); // Thêm state cho thông báo
-    const navigate = useNavigate(); // Sử dụng hook useNavigate
+const Login: React.FC = () => {
+    // const [isOpen, setIsOpen] = useState<boolean>(false);
+    const [username, setUsername] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
+    const [focusedInput, setFocusedInput] = useState<{ username: boolean; password: boolean }>({
+        username: false,
+        password: false,
+    });
+    const [showPassword, setShowPassword] = useState<boolean>(false);
+    const [loginMessage, setLoginMessage] = useState<string>('');
+    const navigate = useNavigate();
 
     const api = new Api();
 
-    const onSubmitHandler = async (event) => {
+    const onSubmitHandler = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        console.log(username, password);
-        setIsOpen(false);
 
-        const loginRequest = new LoginRequest();
-        loginRequest.username = username;
-        loginRequest.password = password;
+        const loginRequest = new LoginRequest(username, password);
 
         try {
             const response = await api.login(loginRequest);
 
             if (response) {
                 setLoginMessage("Login successful!");
-                navigate("/"); // Điều hướng tới trang home
+                navigate("/");
             } else {
                 setLoginMessage("Account does not exist.");
             }
@@ -40,19 +39,19 @@ const Login = () => {
         }
     };
 
-    const handleUsernameChange = (event) => {
+    const handleUsernameChange = (event: ChangeEvent<HTMLInputElement>) => {
         setUsername(event.target.value);
     };
 
-    const handlePasswordChange = (event) => {
+    const handlePasswordChange = (event: ChangeEvent<HTMLInputElement>) => {
         setPassword(event.target.value);
     };
 
-    const handleFocus = (input) => {
+    const handleFocus = (input: 'username' | 'password') => {
         setFocusedInput({ ...focusedInput, [input]: true });
     };
 
-    const handleBlur = (input, value) => {
+    const handleBlur = (input: 'username' | 'password', value: string) => {
         if (!value) {
             setFocusedInput({ ...focusedInput, [input]: false });
         }
@@ -71,7 +70,7 @@ const Login = () => {
                                 <label
                                     className={`absolute left-10 transition-all duration-200 ease-in-out text-gray-500 ${
                                         focusedInput.username || username
-                                            ? 'text-[3.5] -top-5 text-blue-500'
+                                            ? 'text-sm -top-5 text-blue-500'
                                             : 'text-base top-3'
                                     }`}
                                 >
@@ -95,16 +94,16 @@ const Login = () => {
                                 <label
                                     className={`absolute left-10 transition-all duration-200 ease-in-out text-gray-500 ${
                                         focusedInput.password || password
-                                            ? 'text-[3.5] -top-5 text-blue-500'
+                                            ? 'text-sm -top-5 text-blue-500'
                                             : 'text-base top-3'
                                     }`}
                                 >
                                     Password
                                 </label>
                                 <input
-                                    onChange={handlePasswordChange}
                                     type={showPassword ? "text" : "password"}
                                     value={password}
+                                    onChange={handlePasswordChange}
                                     onFocus={() => handleFocus('password')}
                                     onBlur={() => handleBlur('password', password)}
                                     className="block w-full pl-10 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 mt-1"
@@ -122,7 +121,7 @@ const Login = () => {
                         <div className="flex flex-col mt-8 justify-between items-center gap-y-4">
                             <button
                                 type="button"
-                                onClick={() => setIsOpen(false)}
+                                // onClick={() => setIsOpen(false)}
                                 className="text-blue-500 hover:underline"
                             >
                                 Forgot password?
@@ -137,12 +136,15 @@ const Login = () => {
 
                             <button
                                 type="button"
-                                onClick={() => setIsOpen(false)}
+                                // onClick={() => setIsOpen(false)}
                                 className="text-blue-500 hover:underline"
                             >
                                 Do not have an account!
                             </button>
                         </div>
+                        {loginMessage && (
+                            <p className="text-center mt-4 text-red-500">{loginMessage}</p>
+                        )}
                     </form>
                 </div>
             </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Footer = () => {
+const Footer: React.FC = () => {
     return (
         <footer style={{ padding: '20px', backgroundColor: '#fff', borderTop: '1px solid #dee2e6', textAlign: 'center', position: 'fixed', width: '100%', bottom: 0 }}>
             <p style={{ margin: 0 }}>© {new Date().getFullYear()} IU Schedule. All rights reserved.</p>

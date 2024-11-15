@@ -1,26 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, FormEvent } from 'react';
 import { FaUser, FaLock } from 'react-icons/fa';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 
-const Register = () => {
-    const [name, setName] = useState('');
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [studentId, setStudentId] = useState('');
-    const [focusedInput, setFocusedInput] = useState({ name: false, username: false, password: false, studentId: false });
-    const [showPassword, setShowPassword] = useState(false);
+interface FocusedInput {
+    name: boolean;
+    username: boolean;
+    password: boolean;
+    studentId: boolean;
+}
 
-    const handleFocus = (input) => {
-        setFocusedInput({ ...focusedInput, [input]: true });
+const Register: React.FC = () => {
+    const [name, setName] = useState<string>('');
+    const [username, setUsername] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
+    const [studentId, setStudentId] = useState<string>('');
+    const [focusedInput, setFocusedInput] = useState<FocusedInput>({
+        name: false,
+        username: false,
+        password: false,
+        studentId: false
+    });
+    const [showPassword, setShowPassword] = useState<boolean>(false);
+
+    const handleFocus = (input: keyof FocusedInput) => {
+        setFocusedInput((prevState) => ({ ...prevState, [input]: true }));
     };
 
-    const handleBlur = (input, value) => {
+    const handleBlur = (input: keyof FocusedInput, value: string) => {
         if (!value) {
-            setFocusedInput({ ...focusedInput, [input]: false });
+            setFocusedInput((prevState) => ({ ...prevState, [input]: false }));
         }
     };
 
-    const onSubmitHandler = (event) => {
+    const onSubmitHandler = (event: FormEvent) => {
         event.preventDefault();
         console.log('Registered Successfully:', { name, username, password, studentId });
     };
@@ -144,7 +156,7 @@ const Register = () => {
                             </button>
                             <button
                                 type="button"
-                                onClick={() => setIsOpen(false)}
+                                onClick={() => setShowPassword(false)}
                                 className="text-blue-500 hover:underline"
                             >
                                 Already have an account? Sign In
