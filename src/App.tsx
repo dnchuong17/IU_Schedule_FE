@@ -7,6 +7,8 @@ import NotificationPopUp from "./components/Schedule/NotificationPopUp"
 import Login from "./components/Login_Register/login.tsx"
 import Register from "./components/Login_Register/register.tsx"
 
+import Filters from "./components/Timetable/Filters.tsx"
+
 import ScheduleView from "./components/Schedule/ScheduleView";
 import Footer from "./components/Header_Footer/footer.tsx";
 import Header from "./components/Header_Footer/header.tsx";
@@ -20,35 +22,39 @@ function App() {
     return (
         <div>
             <Router>
-            <Header />
+                <Header />
                 <Routes>
                     <Route
                         path="/admin/WorkflowList"
-                        element={<WorkflowList/>}
+                        element={<WorkflowList />}
                     />
                     <Route
                         path="/deadlinePopUp"
-                        element={<DeadlinePopUp/>}
+                        element={<DeadlinePopUp />}
                     />
                     <Route
                         path="/notePopUp"
-                        element={<NotePopUp/>}
+                        element={<NotePopUp />}
                     />
                     <Route
                         path="/notificationPopUp"
-                        element={<NotificationPopUp/>}
+                        element={<NotificationPopUp />}
                     />
                     <Route
                         path="/login"
-                        element={<Login/>}
+                        element={<Login />}
                     />
                     <Route
                         path="/register"
-                        element={<Register/>}
+                        element={<Register />}
                     />
-                    <Route 
-                        path="/scheduleView" 
+                    <Route
+                        path="/scheduleView"
                         element={<ScheduleView />} />
+                    <Route
+                        path="/filters"
+                        element={<Filters />}
+                    />
                 </Routes>
                 <Footer />
             </Router>
