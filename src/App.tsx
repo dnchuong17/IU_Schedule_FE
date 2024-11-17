@@ -9,8 +9,9 @@ import ScheduleView from "./components/Schedule/ScheduleView"
 import Footer from "./components/Header_Footer/footer.tsx"
 import Header from "./components/Header_Footer/header.tsx"
 import { BrowserRouter as Router } from "react-router-dom"
-import { Route, Routes, Outlet } from "react-router-dom"
+import { Route, Routes, Outlet, Navigate } from "react-router-dom"
 
+// Layout component that includes Header and Footer
 const DefaultLayout = () => {
   return (
     <>
@@ -18,6 +19,21 @@ const DefaultLayout = () => {
       <Outlet />
       <Footer />
     </>
+  )
+}
+
+const NotFound = () => {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen">
+      <h1 className="text-4xl font-bold mb-4">404 - Page Not Found</h1>
+      <p className="mb-4">The page you're looking for doesn't exist.</p>
+      <a
+        href="/"
+        className="text-blue-500 hover:text-blue-700"
+      >
+        Go back to home
+      </a>
+    </div>
   )
 }
 
@@ -33,6 +49,16 @@ function App() {
         <Route element={<DefaultLayout />}>
           <Route
             path="/"
+            element={
+              <Navigate
+                to="/scheduleView"
+                replace
+              />
+            }
+          />
+
+          <Route
+            path="/deadlinePopUp"
             element={<DeadlinePopUp />}
           />
           <Route
@@ -58,6 +84,11 @@ function App() {
           <Route
             path="/filters"
             element={<Filters />}
+          />
+
+          <Route
+            path="*"
+            element={<NotFound />}
           />
         </Route>
       </Routes>
