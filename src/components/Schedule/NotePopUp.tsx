@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { AiOutlineClose } from 'react-icons/ai';
 
-const NotePopUp = ({ onClose }) => {
-    const [isVisible, setIsVisible] = useState(true);
+interface NotePopUpProps {
+    onClose?: () => void;
+}
+
+const NotePopUp: React.FC<NotePopUpProps> = ({ onClose }) => {
+    const [isVisible, setIsVisible] = useState<boolean>(true);
 
     const handleClose = () => {
         setIsVisible(false);
-        onClose();
+        if (onClose) onClose();
     };
 
     if (!isVisible) return null;
@@ -29,7 +33,7 @@ const NotePopUp = ({ onClose }) => {
                     <textarea
                         placeholder="Enter a note"
                         className="w-full py-4 px-4 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none shadow-sm resize-none bg-gray-50 text-gray-700 placeholder-gray-400 transition duration-300 ease-in-out"
-                        rows="10"
+                        rows={10}
                     />
                 </div>
 

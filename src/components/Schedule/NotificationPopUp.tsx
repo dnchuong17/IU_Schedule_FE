@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import { AiOutlineClose } from 'react-icons/ai';
 import { useNavigate } from "react-router-dom";
 
+type NotificationPopUpProps = {
+    onClose?: () => void;
+};
 
-const NotificationPopUp = () => {
-    const [isVisible, setIsVisible] = useState(true);
+const NotificationPopUp: React.FC<NotificationPopUpProps> = () => {
+    const [isVisible, setIsVisible] = useState<boolean>(true);
     const navigate = useNavigate();
 
-    const onClose = () => {
+    const onClose = (): void => {
         setIsVisible(false);
     };
 
