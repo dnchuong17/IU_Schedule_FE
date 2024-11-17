@@ -9,57 +9,33 @@ import Register from "./components/Login_Register/register.tsx"
 
 import Filters from "./components/Timetable/Filters.tsx"
 
-import ScheduleView from "./components/Schedule/ScheduleView";
-import Footer from "./components/Header_Footer/footer.tsx";
-import Header from "./components/Header_Footer/header.tsx";
-// import Filters from '../src/components/Timetable/Filters.tsx';
-// import Footer from "./components/Header_Footer/footer.tsx";
+import ScheduleView from "./components/Schedule/ScheduleView"
+import Footer from "./components/Header_Footer/footer.tsx"
+import Header from "./components/Header_Footer/header.tsx"
 
-import { BrowserRouter as Router } from "react-router-dom"
-import { Route, Routes } from "react-router-dom"
+import { BrowserRouter as Router, useRoutes } from "react-router-dom"
 
 function App() {
-    return (
-        <div>
-            <Router>
-                <Header />
-                <Routes>
-                    <Route
-                        path="/admin/WorkflowList"
-                        element={<WorkflowList />}
-                    />
-                    <Route
-                        path="/deadlinePopUp"
-                        element={<DeadlinePopUp />}
-                    />
-                    <Route
-                        path="/notePopUp"
-                        element={<NotePopUp />}
-                    />
-                    <Route
-                        path="/notificationPopUp"
-                        element={<NotificationPopUp />}
-                    />
-                    <Route
-                        path="/login"
-                        element={<Login />}
-                    />
-                    <Route
-                        path="/register"
-                        element={<Register />}
-                    />
-                    <Route
-                        path="/scheduleView"
-                        element={<ScheduleView />} />
-                    <Route
-                        path="/filters"
-                        element={<Filters />}
-                    />
-                </Routes>
-                <Footer />
-            </Router>
-        </div>
-    )
-}
+  const AppRoutes = () =>
+    useRoutes([
+      { path: "/admin/WorkflowList", element: <WorkflowList /> },
+      { path: "/deadlinePopUp", element: <DeadlinePopUp /> },
+      { path: "/notePopUp", element: <NotePopUp /> },
+      { path: "/notificationPopUp", element: <NotificationPopUp /> },
+      { path: "/login", element: <Login /> },
+      { path: "/register", element: <Register /> },
+      { path: "/scheduleView", element: <ScheduleView /> },
+      { path: "/filters", element: <Filters /> },
+    ])
 
+  return (
+    <div>
+      <Router>
+        <AppRoutes />
+        {window.location.pathname !== "/admin/WorkflowList" && <Header />}
+        {window.location.pathname !== "/admin/WorkflowList" && <Footer />}
+      </Router>
+    </div>
+  )
+}
 export default App
