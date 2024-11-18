@@ -11,19 +11,12 @@ import {
 } from "@/components/ui/dialog"
 import { toast } from "react-toastify"
 import { useState } from "react"
+import {importWorkflow} from "@/lib/API.ts";
+import {HttpStatusCode} from "axios";
+import {CSV_data, CSVuploaderProps} from "@/common/type.constant.ts";
 
-interface CSV_data {
-  Condition: string
-  Action: string
-}
 
-interface CSVuploaderProps {
-  isOpen?: boolean
-  onClose?: () => void
-  onUpload?: (csvData: CSV_data[]) => void
-}
-
-export function CSVuploader({ isOpen = false, onClose }: CSVuploaderProps) {
+export function CSVuploader({ isOpen = false, userId, workflowId,onClose }: CSVuploaderProps) {
   const [csvContent, setCsvContent] = useState<CSV_data[]>([])
 
   const handleFileUpload = async (
@@ -37,25 +30,30 @@ export function CSVuploader({ isOpen = false, onClose }: CSVuploaderProps) {
         const lines = text.split("\n")
 
         const csvData: CSV_data[] = lines
-          .slice(1)
-          .map((line) => {
-            const [condition, action] =
-              line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || []
-            return {
-              Condition: condition?.replace(/"/g, ""),
-              Action: action?.replace(/"/g, ""),
-            }
-          })
+            .slice(1) // Skip the header row
+            .map((line) => {
+              const [condition, action] = line.split(",").map(item => item.trim());
+              return {
+                Condition: condition?.replace(/"/g, ""),
+                Action: action?.replace(/"/g, ""),
+              };
+            })
           .filter((rule) => rule.Condition && rule.Action)
         setCsvContent(csvData)
-        console.log("file content", csvData)
+        console.log(csvData)
       }
       reader.readAsText(file)
     }
   }
 
-  const handleUploadClick = () => {
+  const handleUploadClick = async () => {
     if (csvContent.length > 0) {
+      const res = await importWorkflow(workflowId, userId, csvContent)
+      if (res !== HttpStatusCode.Ok){
+        toast.error("Please select a CSV file first!")
+        return;
+      }
+      setCsvContent([]);
       toast.success(
         <div>
           <p>CSV file uploaded successfully!</p>

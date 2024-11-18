@@ -317,10 +317,6 @@ export default function WorkflowList() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-[conic-gradient(at_top_right,_var(--tw-gradient-stops))] from-zinc-700 via-slate-800 to-zinc-800">
       <ToastContainer />
-      <CSVuploader
-        isOpen={showCSVUploader}
-        onClose={() => setShowCSVUploader(false)}
-      />
       <Helmet>
         <link
           rel="icon"
@@ -458,6 +454,12 @@ export default function WorkflowList() {
                           key={row.id}
                           data-state={row.getIsSelected() && "selected"}
                         >
+                          <CSVuploader
+                              isOpen={showCSVUploader}
+                              onClose={() => setShowCSVUploader(false)}
+                              workflowId={Number(row.original.workflowId)}
+                              userId={100}
+                          />
                           {row.getVisibleCells().map((cell) => (
                             <TableCell
                               key={cell.id}
