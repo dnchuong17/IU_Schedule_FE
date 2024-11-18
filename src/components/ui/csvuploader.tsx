@@ -11,12 +11,16 @@ import {
 } from "@/components/ui/dialog"
 import { toast } from "react-toastify"
 import { useState } from "react"
-import {importWorkflow} from "@/lib/API.ts";
-import {HttpStatusCode} from "axios";
-import {CSV_data, CSVuploaderProps} from "@/common/type.constant.ts";
+import { importWorkflow } from "@/lib/API.ts"
+import { HttpStatusCode } from "axios"
+import { CSV_data, CSVuploaderProps } from "@/common/type.constant.ts"
 
-
-export function CSVuploader({ isOpen = false, userId, workflowId,onClose }: CSVuploaderProps) {
+export function CSVuploader({
+  isOpen = false,
+  userId,
+  workflowId,
+  onClose,
+}: CSVuploaderProps) {
   const [csvContent, setCsvContent] = useState<CSV_data[]>([])
 
   const handleFileUpload = async (
@@ -30,17 +34,19 @@ export function CSVuploader({ isOpen = false, userId, workflowId,onClose }: CSVu
         const lines = text.split("\n")
 
         const csvData: CSV_data[] = lines
-            .slice(1) // Skip the header row
-            .map((line) => {
-              const [condition, action] = line.split(",").map(item => item.trim());
-              return {
-                Condition: condition?.replace(/"/g, ""),
-                Action: action?.replace(/"/g, ""),
-              };
-            })
+          .slice(1)
+          .map((line) => {
+            const [condition, action] = line
+              .split(",")
+              .map((item) => item.trim())
+            return {
+              Condition: condition?.replace(/"/g, ""),
+              Action: action?.replace(/"/g, ""),
+            }
+          })
           .filter((rule) => rule.Condition && rule.Action)
         setCsvContent(csvData)
-        console.log(csvData)
+        // console.log(csvData)
       }
       reader.readAsText(file)
     }
@@ -49,11 +55,11 @@ export function CSVuploader({ isOpen = false, userId, workflowId,onClose }: CSVu
   const handleUploadClick = async () => {
     if (csvContent.length > 0) {
       const res = await importWorkflow(workflowId, userId, csvContent)
-      if (res !== HttpStatusCode.Ok){
+      if (res !== HttpStatusCode.Ok) {
         toast.error("Please select a CSV file first!")
-        return;
+        return
       }
-      setCsvContent([]);
+      setCsvContent([])
       toast.success(
         <div>
           <p>CSV file uploaded successfully!</p>
@@ -132,6 +138,7 @@ export function CSVuploader({ isOpen = false, userId, workflowId,onClose }: CSVu
             </Button>
             <Button
               size="lg"
+              disabled={csvContent.length === 0}
               onClick={handleUploadClick}
             >
               Upload

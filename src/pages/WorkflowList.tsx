@@ -50,7 +50,13 @@ import {
 
 import { motion } from "framer-motion"
 import { Helmet } from "react-helmet"
-import { fetchWorkflows, ApiWorkflow, addWorkflows } from "@/lib/API"
+import {
+  fetchWorkflows,
+  ApiWorkflow,
+  addWorkflows,
+  deleteWorkflows,
+  getUserProfile,
+} from "@/lib/API"
 import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import { BarLoader, HashLoader } from "react-spinners"
@@ -77,6 +83,26 @@ export default function WorkflowList() {
   const [sorting, setSorting] = useState<SortingState>([])
   const [showCSVUploader, setShowCSVUploader] = useState(false)
 
+  const [userInfo, setUserInfo] = useState<{
+    email: string
+    name: string
+    student_id: string | null
+    schedule_template_id: string | null
+  } | null>(null)
+
+  useEffect(() => {
+    const loadUserInfo = async () => {
+      try {
+        const userData = await getUserProfile(100)
+        console.log("userData", userData)
+        setUserInfo(userData)
+      } catch (error) {
+        console.error("Error fetching user info:", error)
+      }
+    }
+    loadUserInfo()
+  }, [])
+
   const toastShownRef = useRef<boolean>(false)
 
   const columns: ColumnDef<Workflow>[] = [
@@ -91,6 +117,7 @@ export default function WorkflowList() {
       header: ({ column }) => (
         <Button
           variant="ghost"
+          size="table"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="hover:bg-transparent"
         >
@@ -113,6 +140,7 @@ export default function WorkflowList() {
       accessorKey: "workflowName",
       header: ({ column }) => (
         <Button
+          size="table"
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="hover:bg-transparent"
@@ -268,7 +296,7 @@ export default function WorkflowList() {
         {
           index: prevWorkflows.length + 1,
           workflowName: newWorkflowName,
-          userName: "New User",
+          userName: userInfo?.name || "New User",
           workflowId: prevWorkflows.length + 1,
           lastUpdated: new Date().toISOString(),
           createdAt: new Date().toISOString(),
@@ -283,6 +311,22 @@ export default function WorkflowList() {
       toast.error("Failed to add workflow!")
     } finally {
       setIsAdding(false)
+    }
+  }
+
+  const deleteWorkflow = async (index: number) => {
+    const workflow = workflows.find((w) => w.index === index)
+    if (!workflow?.workflowId) return
+
+    try {
+      await deleteWorkflows(workflow.workflowId, 100)
+      setWorkflows((prevWorkflows) =>
+        prevWorkflows.filter((w) => w.index !== index)
+      )
+      toast.success("Workflow deleted successfully!")
+    } catch (error) {
+      console.error("Error deleting workflow:", error)
+      toast.error("Failed to delete workflow!")
     }
   }
 
@@ -305,13 +349,6 @@ export default function WorkflowList() {
   const cancelEditing = () => {
     setEditingIndex(null)
     setEditForm(null)
-  }
-
-  const deleteWorkflow = (index: number) => {
-    setWorkflows((prevWorkflows) =>
-      prevWorkflows.filter((w) => w.index !== index)
-    )
-    toast.success("Workflow deleted successfully!")
   }
 
   return (
@@ -455,10 +492,10 @@ export default function WorkflowList() {
                           data-state={row.getIsSelected() && "selected"}
                         >
                           <CSVuploader
-                              isOpen={showCSVUploader}
-                              onClose={() => setShowCSVUploader(false)}
-                              workflowId={Number(row.original.workflowId)}
-                              userId={100}
+                            isOpen={showCSVUploader}
+                            onClose={() => setShowCSVUploader(false)}
+                            workflowId={Number(row.original.workflowId)}
+                            userId={100}
                           />
                           {row.getVisibleCells().map((cell) => (
                             <TableCell
