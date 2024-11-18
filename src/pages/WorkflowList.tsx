@@ -45,8 +45,7 @@ import {
   Trash2,
   Check,
   X,
-  ChevronDown,
-  ChevronUp,
+  Upload,
 } from "lucide-react"
 
 import { motion } from "framer-motion"
@@ -55,6 +54,7 @@ import { fetchWorkflows, ApiWorkflow, addWorkflows } from "@/lib/API"
 import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import { BarLoader, HashLoader } from "react-spinners"
+import { CSVuploader } from "@/components/ui/csvuploader"
 
 interface Workflow {
   index: number
@@ -75,6 +75,7 @@ export default function WorkflowList() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [newWorkflowName, setNewWorkflowName] = useState("")
   const [sorting, setSorting] = useState<SortingState>([])
+  const [showCSVUploader, setShowCSVUploader] = useState(false)
 
   const toastShownRef = useRef<boolean>(false)
 
@@ -82,80 +83,72 @@ export default function WorkflowList() {
     {
       accessorKey: "index",
       header: "No.",
-      cell: ({ row }) => (
-        <div className="font-semibold">{row.original.index}</div>
-      ),
-      size: 100,
+      cell: ({ row }) => <div>{row.original.index}</div>,
+      size: 70,
     },
     {
       accessorKey: "userName",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="w-full justify-start font-bold"
-          >
-            Username
-            {column.getIsSorted() === "asc" ? (
-              <ChevronUp className="ml-2 h-4 w-4" />
-            ) : column.getIsSorted() === "desc" ? (
-              <ChevronDown className="ml-2 h-4 w-4" />
-            ) : null}
-          </Button>
-        )
-      },
-      cell: ({ row }) => (
-        <div className="truncate">{row.original.userName}</div>
-      ),
-      size: 150,
-    },
-    {
-      accessorKey: "workflowId",
-      header: "Workflow ID",
-      cell: ({ row }) => (
-        <div className="truncate">{row.original.workflowId}</div>
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="hover:bg-transparent"
+        >
+          Username
+          {column.getIsSorted() && (
+            <span className="ml-2">
+              {column.getIsSorted() === "asc" ? "↑" : "↓"}
+            </span>
+          )}
+        </Button>
       ),
       size: 100,
     },
     {
+      accessorKey: "workflowId",
+      header: "ID",
+      size: 80,
+    },
+    {
       accessorKey: "workflowName",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="w-full justify-start font-bold"
-          >
-            Workflow name
-            {column.getIsSorted() === "asc" ? (
-              <ChevronUp className="ml-2 h-4 w-4" />
-            ) : column.getIsSorted() === "desc" ? (
-              <ChevronDown className="ml-2 h-4 w-4" />
-            ) : null}
-          </Button>
-        )
-      },
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="hover:bg-transparent"
+        >
+          Workflow Name
+          {column.getIsSorted() && (
+            <span className="ml-2">
+              {column.getIsSorted() === "asc" ? "↑" : "↓"}
+            </span>
+          )}
+        </Button>
+      ),
       cell: ({ row }) => (
-        <div className="truncate">{row.original.workflowName}</div>
+        <div className="font-medium">{row.original.workflowName}</div>
       ),
       size: 200,
     },
     {
       accessorKey: "lastUpdated",
-      header: "Last updated",
+      header: "Last Updated",
       cell: ({ row }) => (
-        <div className="truncate">{row.original.lastUpdated}</div>
+        <div className="text-muted-foreground">
+          {new Date(row.original.lastUpdated!).toLocaleDateString()}
+        </div>
       ),
-      size: 150,
+      size: 120,
     },
     {
       accessorKey: "createdAt",
-      header: "Created at",
+      header: "Created",
       cell: ({ row }) => (
-        <div className="truncate">{row.original.createdAt}</div>
+        <div className="text-muted-foreground">
+          {new Date(row.original.createdAt!).toLocaleDateString()}
+        </div>
       ),
-      size: 150,
+      size: 120,
     },
     {
       id: "actions",
@@ -195,6 +188,11 @@ export default function WorkflowList() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setShowCSVUploader(true)}>
+                    <Upload className="mr-2 h-4 w-4" />
+                    <span>Upload CSV</span>
+                  </DropdownMenuItem>
+
                   <DropdownMenuItem onClick={() => startEditing(workflow)}>
                     <Edit className="mr-2 h-4 w-4" />
                     <span>Edit</span>
@@ -319,6 +317,10 @@ export default function WorkflowList() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-[conic-gradient(at_top_right,_var(--tw-gradient-stops))] from-zinc-700 via-slate-800 to-zinc-800">
       <ToastContainer />
+      <CSVuploader
+        isOpen={showCSVUploader}
+        onClose={() => setShowCSVUploader(false)}
+      />
       <Helmet>
         <link
           rel="icon"
@@ -462,6 +464,7 @@ export default function WorkflowList() {
                               style={{
                                 width: `${cell.column.getSize()}px`,
                               }}
+                              className="text-left"
                             >
                               {flexRender(
                                 cell.column.columnDef.cell,
