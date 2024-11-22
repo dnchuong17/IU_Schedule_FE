@@ -27,7 +27,7 @@ const Login: React.FC = () => {
 
         try {
             const response = await api.login(loginRequest);
-            console.log(response);
+            console.log(response)
 
             if (response) {
                 setLoginMessage("Login successful!");
