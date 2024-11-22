@@ -21,9 +21,9 @@ const Login: React.FC = () => {
 
     const onSubmitHandler = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-
         const loginRequest = new LoginRequest(username, password);
-        console.log(loginRequest);
+        loginRequest.username = username;
+        loginRequest.password = password;
 
         try {
             const response = await api.login(loginRequest);
@@ -31,7 +31,10 @@ const Login: React.FC = () => {
 
             if (response) {
                 setLoginMessage("Login successful!");
-                navigate("/");
+                // navigate("/");
+                setTimeout (() => {
+                    // navigate("/page1");
+                },3000);
             } else {
                 setLoginMessage("Account does not exist.");
             }

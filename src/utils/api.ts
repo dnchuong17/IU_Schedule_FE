@@ -1,12 +1,13 @@
 import axios, { AxiosInstance } from "axios";
 import { RegisterRequest } from "./request/registerRequest";
+import { DeadlineRequest } from "./request/deadlineRequest"; // Removed the extra "." at the end
 
 export class Api {
     private axiosObject: AxiosInstance;
 
     constructor() {
         this.axiosObject = axios.create({
-            baseURL: "http://localhost:3000",
+            baseURL: "http://localhost:3000/api",
             withCredentials: true,
         });
     }
@@ -15,6 +16,7 @@ export class Api {
         return this.axiosObject;
     }
 
+    // Login method
     async login(loginRequest: { username: string; password: string }) {
         const { username, password } = loginRequest;
         try {
@@ -25,28 +27,42 @@ export class Api {
             localStorage.setItem("accessToken", response.data.access_token);
             localStorage.setItem("refreshToken", response.data.refresh_token);
             return response.data;
+
         } catch (error: any) {
             console.error("Login failed:", error.response?.data || error.message);
             throw error;
         }
     }
 
+    // Register method
     async register(registerRequest: RegisterRequest) {
         try {
-            const { name, username, password, student_id } = registerRequest;
-            console.log(name, username, password, student_id);
+            const { name, email, password, student_id } = registerRequest;
+            console.log(name, email, password, student_id);
 
-            const response = await this.axiosObject.post("/auth/register", {
+            const response2 = await this.axiosObject.post("/auth/register", {
                 name,
-                username,
+                email,
                 password,
                 student_id,
             });
 
-            console.log(response.data);
-            return response.data;
+            console.log(response2.data);
+            return response2.data;
         } catch (error: any) {
-            console.error("Registration failed:", error.response?.data || error.message);
+            console.error("Registration failed:", error.response2?.data || error.message);
+            throw error;
+        }
+    }
+
+    // Create deadline method
+    async createDeadline(deadlineData: DeadlineRequest) {
+        try {
+            const response3 = await this.axiosObject.post("/deadline/create", deadlineData);
+            console.log("Deadline created successfully:", response3.data);
+            return response3.data;
+        } catch (error: any) {
+            console.error("Error creating deadline:", error.response3?.data || error.message);
             throw error;
         }
     }
