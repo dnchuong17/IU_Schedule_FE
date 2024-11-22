@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from "axios";
 import { RegisterRequest } from "./request/registerRequest";
-import { DeadlineRequest } from "./request/deadlineRequest"; // Removed the extra "." at the end
+// import { DeadlineRequest } from "./request/deadlineRequest"; // Removed the extra "." at the end
 
 export class Api {
     private axiosObject: AxiosInstance;
@@ -55,15 +55,15 @@ export class Api {
         }
     }
 
-    // Create deadline method
-    async createDeadline(deadlineData: DeadlineRequest) {
-        try {
-            const response3 = await this.axiosObject.post("/deadline/create", deadlineData);
-            console.log("Deadline created successfully:", response3.data);
-            return response3.data;
-        } catch (error: any) {
-            console.error("Error creating deadline:", error.response3?.data || error.message);
-            throw error;
-        }
-    }
+    // // Create deadline method
+    // async createDeadline(deadlineData: DeadlineRequest) {
+    //     try {
+    //         const response3 = await this.axiosObject.post("/deadline/create", deadlineData);
+    //         console.log("Deadline created successfully:", response3.data);
+    //         return response3.data;
+    //     } catch (error: any) {
+    //         console.error("Error creating deadline:", error.response3?.data || error.message);
+    //         throw error;
+    //     }
+    // }
 }
