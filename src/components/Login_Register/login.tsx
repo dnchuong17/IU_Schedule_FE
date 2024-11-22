@@ -23,9 +23,11 @@ const Login: React.FC = () => {
         event.preventDefault();
 
         const loginRequest = new LoginRequest(username, password);
+        console.log(loginRequest);
 
         try {
             const response = await api.login(loginRequest);
+            console.log(response);
 
             if (response) {
                 setLoginMessage("Login successful!");
