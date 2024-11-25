@@ -5,6 +5,7 @@ import NotificationPopUp from "./components/Schedule/NotificationPopUp"
 import Login from "./components/Login_Register/login.tsx"
 import Register from "./components/Login_Register/register.tsx"
 import Filters from "./components/Timetable/Filters.tsx"
+import CourseTable from "./components/Timetable/CourseTable.tsx"
 import ScheduleView from "./components/Schedule/ScheduleView"
 import Footer from "./components/Header_Footer/footer.tsx"
 import Header from "./components/Header_Footer/header.tsx"
@@ -85,7 +86,10 @@ function App() {
             path="/filters"
             element={<Filters />}
           />
-
+          <Route
+            path="/coursetable"
+            element={<CourseTable />}
+          />
           <Route
             path="*"
             element={<NotFound />}

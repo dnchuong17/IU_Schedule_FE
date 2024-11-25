@@ -131,21 +131,21 @@ const Filters: React.FC = () => {
                   .map((group, index) => (
                     <React.Fragment key={index}>
                       {/* Course Header */}
-                          <tr className="bg-gray-200">
-                              <td className="py-2">
-                                  <div className="flex justify-center items-center h-full">
-                                      <input
-                                          type="checkbox"
-                                          className="h-[18px] w-[18px] rounded border border-slate-300"
-                                          onChange={() => handleGroupSelection(group.courseName)}
-                                          checked={group.items.every((item) => item.selected)} // All selected if every row is selected
-                                      />
-                                  </div>
-                              </td>
-                              <td className="py-2 font-bold" colSpan={5}>
-                                  {group.courseName}
-                              </td>
-                          </tr>
+                      <tr className="bg-gray-200">
+                        <td className="py-2">
+                          <div className="flex justify-center items-center h-full">
+                            <input
+                              type="checkbox"
+                              className="h-[18px] w-[18px] rounded border border-slate-300"
+                              onChange={() => handleGroupSelection(group.courseName)}
+                              checked={group.items.every((item) => item.selected)} // All selected if every row is selected
+                            />
+                          </div>
+                        </td>
+                        <td className="py-2 font-bold" colSpan={5}>
+                          {group.courseName}
+                        </td>
+                      </tr>
 
                       {/* Individual Courses */}
                       {group.items.map((course, subIndex) => (
