@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FormEvent, useState } from "react";
+{/* import React, { ChangeEvent, FormEvent, useState } from "react";
 import { ClassObject, _toClassObject } from "../../lib/classInput";
 
 const Filters: React.FC = () => {
@@ -6,12 +6,12 @@ const Filters: React.FC = () => {
   const [courses, setCourses] = useState<ClassObject[]>([]); // Courses list state
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setInputText(e.target.value);
+    setInputText(e.target.value); 
+    // add a comment
   };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     try {
       const courseEntries = inputText.split("\t").filter(Boolean); // Split and filter
       const newCourse = _toClassObject(courseEntries);
@@ -53,7 +53,7 @@ const Filters: React.FC = () => {
               onChange={handleInputChange}
             />
             <button type="submit" className="p-2 bg-sky-400 text-white rounded">
-              Add new
+              Add 
             </button>
           </div>
         </form>
@@ -96,3 +96,4 @@ const Filters: React.FC = () => {
 };
 
 export default Filters;
+/*}*/}
