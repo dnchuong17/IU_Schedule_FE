@@ -188,4 +188,3 @@ const Filters: React.FC = () => {
 };
 
 export default Filters;
-/*}*/}
