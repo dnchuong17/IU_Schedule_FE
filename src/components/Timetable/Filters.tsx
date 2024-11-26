@@ -17,6 +17,7 @@ const Filters: React.FC = () => {
   // Handle input field change
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setInputText(e.target.value);
+    // add a comment
   };
 
   // Handle form submission
@@ -187,3 +188,4 @@ const Filters: React.FC = () => {
 };
 
 export default Filters;
+/*}*/}
