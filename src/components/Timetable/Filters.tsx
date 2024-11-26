@@ -53,7 +53,7 @@ const Filters: React.FC = () => {
               onChange={handleInputChange}
             />
             <button type="submit" className="p-2 bg-sky-400 text-white rounded">
-              Add
+              Add new
             </button>
           </div>
         </form>
