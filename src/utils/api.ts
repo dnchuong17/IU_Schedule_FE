@@ -1,5 +1,7 @@
 import axios, { AxiosInstance } from "axios";
-import { RegisterRequest } from "./request/registerRequest";
+import { LoginRequest } from "../utils/request/loginRequest";
+import { RegisterRequest } from "../utils/request/registerRequest";
+
 // import { DeadlineRequest } from "./request/deadlineRequest"; // Removed the extra "." at the end
 
 export class Api {
@@ -16,54 +18,43 @@ export class Api {
         return this.axiosObject;
     }
 
-    // Login method
-    async login(loginRequest: { username: string; password: string }) {
-        const { username, password } = loginRequest;
+    async login(loginRequest: LoginRequest) {
+        const { email, password } = loginRequest;
         try {
-            const response = await this.axiosObject.post("/auth/login", {
-                username,
+            const result1 = await this.axiosObject.post("/auth/login", {
+                email,
                 password,
             });
-            localStorage.setItem("accessToken", response.data.access_token);
-            localStorage.setItem("refreshToken", response.data.refresh_token);
-            return response.data;
-
+            localStorage.setItem("accessToken", result1.data.access_token);
+            localStorage.setItem("refreshToken", result1.data.refresh_token);
+            return result1.data;
         } catch (error: any) {
             console.error("Login failed:", error.response?.data || error.message);
             throw error;
         }
     }
 
-    // Register method
     async register(registerRequest: RegisterRequest) {
         try {
-            const { name, email, password, student_id } = registerRequest;
-            console.log(name, email, password, student_id);
-
-            const response2 = await this.axiosObject.post("/auth/register", {
-                name,
-                email,
-                password,
-                student_id,
-            });
-
-            console.log(response2.data);
-            return response2.data;
+            const result2 = await this.axiosObject.post("/auth/register", registerRequest);
+            console.log("Server response:", result2.data);
+            return result2.data;
         } catch (error: any) {
-            console.error("Registration failed:", error.response2?.data || error.message);
-            throw error;
+            console.error("Registration failed:", error.response?.data || error.message);
+            throw error; // Re-throw error for higher-level handling
         }
     }
-    //
+
     // // Create deadline method
-    // async createDeadline(deadlineData: DeadlineRequest) {
+    // async createDeadline(deadlineData: any) { // Replace `any` with the correct type if available (e.g., DeadlineRequest)
     //     try {
     //         const response3 = await this.axiosObject.post("/deadline/create", deadlineData);
     //         console.log("Deadline created successfully:", response3.data);
     //         return response3.data;
     //     } catch (error: any) {
-    //         console.error("Error creating deadline:", error.response3?.data || error.message);
+    //         console.error("Error creating deadline:", error.response?.data || error.message);
     //         throw error;
     //     }
     // }
 }
+

@@ -21,9 +21,7 @@ const Login: React.FC = () => {
 
     const onSubmitHandler = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const loginRequest = new LoginRequest(username, password);
-        loginRequest.username = username;
-        loginRequest.password = password;
+        const loginRequest = { email: username, password: password };
 
         try {
             const response = await api.login(loginRequest);
@@ -31,10 +29,9 @@ const Login: React.FC = () => {
 
             if (response) {
                 setLoginMessage("Login successful!");
-                // navigate("/");
-                setTimeout (() => {
+                setTimeout(() => {
                     // navigate("/page1");
-                },3000);
+                }, 3000);
             } else {
                 setLoginMessage("Account does not exist.");
             }
@@ -127,7 +124,6 @@ const Login: React.FC = () => {
                         <div className="flex flex-col mt-8 justify-between items-center gap-y-4">
                             <button
                                 type="button"
-                                // onClick={() => setIsOpen(false)}
                                 className="text-blue-500 hover:underline"
                             >
                                 Forgot password?
@@ -142,7 +138,6 @@ const Login: React.FC = () => {
 
                             <button
                                 type="button"
-                                // onClick={() => setIsOpen(false)}
                                 className="text-blue-500 hover:underline"
                             >
                                 Do not have an account!
