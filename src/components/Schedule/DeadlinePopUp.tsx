@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
-import { Api } from "../../utils/api.ts";
-import { DeadlineRequest } from "../../utils/request/deadlineRequest.ts";
+// import { Api } from "../../utils/api.ts";
+// import { DeadlineRequest } from "../../utils/request/deadlineRequest.ts;
 
 const DeadlinePopUp: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
     const [taskName, setTaskName] = useState("");
@@ -9,7 +9,7 @@ const DeadlinePopUp: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
     const [deadlineTime, setDeadlineTime] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [deadlines, setDeadlines] = useState<any[]>([]); // Mảng để lưu các deadline
-    const [api] = useState(new Api());
+    // const [api] = useState(new Api());
 
     const handleCreateDeadline = async () => {
         if (!taskName || !deadlineDate || !deadlineTime) {
@@ -17,39 +17,39 @@ const DeadlinePopUp: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
             return;
         }
 
-        const deadline = `${deadlineDate}T${deadlineTime}:00Z`; // ISO format for API
-        const deadlineRequest = new DeadlineRequest(
-            "SUBMISSION",
-            "HIGH",
-            taskName,
-            deadline,
-            1
-        );
+        // const deadline = `${deadlineDate}T${deadlineTime}:00Z`; // ISO format for API
+        // const deadlineRequest = new DeadlineRequest(
+        //     "SUBMISSION",
+        //     "HIGH",
+        //     taskName,
+        //     deadline,
+        //     1
+        // );
+        //
+        // setIsLoading(true);
 
-        setIsLoading(true);
-
-        try {
-            const response = await api.createDeadline(deadlineRequest);
-            alert(response.message);
-
-            // Add
-            setDeadlines((prevDeadlines) => [
-                ...prevDeadlines,
-                { description: taskName, deadline: `${deadlineDate} ${deadlineTime}` },
-            ]);
-
-            // Reset
-            setTaskName("");
-            setDeadlineDate("");
-            setDeadlineTime("");
-
-            if (onClose) onClose();
-        } catch (error: any) {
-            console.error("Error creating deadline:", error.response?.data || error.message);
-            alert("Failed to create deadline. Check console for details.");
-        } finally {
-            setIsLoading(false);
-        }
+        // try {
+        //     const response = await api.createDeadline(deadlineRequest);
+        //     alert(response.message);
+        //
+        //     // Add
+        //     setDeadlines((prevDeadlines) => [
+        //         ...prevDeadlines,
+        //         { description: taskName, deadline: `${deadlineDate} ${deadlineTime}` },
+        //     ]);
+        //
+        //     // Reset
+        //     setTaskName("");
+        //     setDeadlineDate("");
+        //     setDeadlineTime("");
+        //
+        //     if (onClose) onClose();
+        // } catch (error: any) {
+        //     console.error("Error creating deadline:", error.response?.data || error.message);
+        //     alert("Failed to create deadline. Check console for details.");
+        // } finally {
+        //     setIsLoading(false);
+        // }
     };
 
     return (
