@@ -2,21 +2,20 @@ import React, { useState, FormEvent, useRef } from 'react';
 import { FaUser, FaLock } from 'react-icons/fa';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { Api } from "../../utils/api.ts";
-import { RegisterRequest } from "../../utils/request/registerRequest.ts";
 import { useNavigate } from "react-router-dom";
 
 interface FocusedInput {
     email: boolean;
     name: boolean;
     password: boolean;
-    studentId: boolean;
+    student_id: boolean;
 }
 
 const Register: React.FC = () => {
     const [email, setEmail] = useState<string>('');
     const [name, setName] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-    const [studentId, setStudentId] = useState<string>('');
+    const [student_id, setStudent_id] = useState<string>('');
 
     const [loading, setLoading] = useState(false);
 
@@ -24,7 +23,7 @@ const Register: React.FC = () => {
         email: false,
         name: false,
         password: false,
-        studentId: false,
+        student_id: false,
     });
 
     const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -54,24 +53,43 @@ const Register: React.FC = () => {
         }
     };
 
+    const validateForm = () => {
+        if (!name || !email || !password || !student_id) {
+            setRegisterMessage("All fields are required.");
+            return false;
+        }
+        return true;
+    };
+
     const onSubmitHandler = async (event: FormEvent) => {
         event.preventDefault();
-        setLoading(true); // Bắt đầu tải
-        setRegisterMessage(''); // Đặt lại thông báo
+        setRegisterMessage(''); // Clear any previous messages
 
-        const registerRequest = new RegisterRequest(name, email, password, studentId);
+        if (!validateForm()) {
+            return;
+        }
 
+        setLoading(true); // Start loading
+
+        const registerRequest = {
+            name,
+            email,
+            password,
+            student_id,
+        };
+
+        console.log(registerRequest);
         try {
-            const response2 = await api.register(registerRequest);
-            console.log(response2);
+            const response = await api.register(registerRequest);
+            console.log(response);
             setRegisterMessage("Registration successful!");
             setTimeout(() => {
                 setLoading(false);
                 navigate("/login");
             }, 3000);
-        } catch (error) {
-            console.error(error);
-            setRegisterMessage("Registration failed. Please try again.");
+        } catch (error: any) {
+            console.error("Registration failed:", error.response?.data || error.message);
+            setRegisterMessage(error.response?.data?.message || "Registration failed. Please try again.");
             setLoading(false);
         }
     };
@@ -173,7 +191,7 @@ const Register: React.FC = () => {
                         <FaUser className="absolute left-3 text-gray-500" />
                         <label
                             className={`absolute left-10 transition-all duration-200 ease-in-out text-gray-500 ${
-                                focusedInput.studentId || studentId
+                                focusedInput.student_id || student_id
                                     ? 'text-[3.5] -top-5 text-blue-500'
                                     : 'text-base top-3'
                             }`}
@@ -183,10 +201,10 @@ const Register: React.FC = () => {
                         <input
                             ref={studentIdInputRef}
                             type="text"
-                            value={studentId}
-                            onChange={(e) => setStudentId(e.target.value)}
-                            onFocus={() => handleFocus('studentId')}
-                            onBlur={() => handleBlur('studentId', studentId)}
+                            value={student_id}
+                            onChange={(e) => setStudent_id(e.target.value)}
+                            onFocus={() => handleFocus('student_id')}
+                            onBlur={() => handleBlur('student_id', student_id)}
                             className="block w-full pl-10 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 mt-1"
                         />
                     </div>
@@ -230,3 +248,4 @@ const Register: React.FC = () => {
 };
 
 export default Register;
+

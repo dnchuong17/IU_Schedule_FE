@@ -1,8 +1,7 @@
 import axios, { AxiosInstance } from "axios";
 import { LoginRequest } from "../utils/request/loginRequest";
 import { RegisterRequest } from "../utils/request/registerRequest";
-
-// import { DeadlineRequest } from "./request/deadlineRequest"; // Removed the extra "." at the end
+import {DeadlineRequest} from "@/utils/request/deadlineRequest.ts";
 
 export class Api {
     private axiosObject: AxiosInstance;
@@ -36,25 +35,36 @@ export class Api {
 
     async register(registerRequest: RegisterRequest) {
         try {
-            const result2 = await this.axiosObject.post("/auth/register", registerRequest);
-            console.log("Server response:", result2.data);
-            return result2.data;
+            const response = await this.axiosObject.post("/auth/register", {
+                name: registerRequest.name,
+                email: registerRequest.email,
+                password: registerRequest.password,
+                student_id: registerRequest.student_id,
+            });
+            console.log("Server response:", response.data);
+            return response.data;
         } catch (error: any) {
             console.error("Registration failed:", error.response?.data || error.message);
             throw error; // Re-throw error for higher-level handling
         }
     }
 
-    // // Create deadline method
-    // async createDeadline(deadlineData: any) { // Replace `any` with the correct type if available (e.g., DeadlineRequest)
-    //     try {
-    //         const response3 = await this.axiosObject.post("/deadline/create", deadlineData);
-    //         console.log("Deadline created successfully:", response3.data);
-    //         return response3.data;
-    //     } catch (error: any) {
-    //         console.error("Error creating deadline:", error.response?.data || error.message);
-    //         throw error;
-    //     }
-    // }
-}
+    async createDeadline(deadlineRequest: DeadlineRequest) {
+        try {
+            const response = await this.axiosObject.post("/deadline/create", {
+                deadlineType: deadlineRequest.deadlineType,
+                priority: deadlineRequest.priority,
+                description: deadlineRequest.description,
+                deadline: deadlineRequest.deadline,
+                courseValueId: deadlineRequest.courseValueId,
+            });
+            console.log("Deadline created successfully:", response.data);
+            return response.data;
+        } catch (error: any) {
+            console.error("Failed to create deadline:", error.response?.data || error.message);
+            throw error;
+        }
+    }
 
+
+}
