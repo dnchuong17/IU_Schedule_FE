@@ -1,8 +1,15 @@
+export enum DeadlineType {
+    HOMEWORK = "HOMEWORK",
+    PROJECT = "PROJECT",
+    EXAM = "EXAM",
+    LAB = "LAB",
+    OTHER = "OTHER",
+}
+
 export class DeadlineRequest {
-    deadlineType?: string;
+    deadlineType?: DeadlineType;
     priority?: string;
     description?: string;
     deadline?: string;
     courseValueId?: number;
-
 }

@@ -1,7 +1,8 @@
+// api.ts
 import axios, { AxiosInstance } from "axios";
 import { LoginRequest } from "../utils/request/loginRequest";
 import { RegisterRequest } from "../utils/request/registerRequest";
-import {DeadlineRequest} from "@/utils/request/deadlineRequest.ts";
+import { DeadlineRequest } from "@/utils/request/deadlineRequest";
 
 export class Api {
     private axiosObject: AxiosInstance;
@@ -51,13 +52,7 @@ export class Api {
 
     async createDeadline(deadlineRequest: DeadlineRequest) {
         try {
-            const response = await this.axiosObject.post("/deadline/create", {
-                deadlineType: deadlineRequest.deadlineType,
-                priority: deadlineRequest.priority,
-                description: deadlineRequest.description,
-                deadline: deadlineRequest.deadline,
-                courseValueId: deadlineRequest.courseValueId,
-            });
+            const response = await this.axiosObject.post("/deadline/create", deadlineRequest);
             console.log("Deadline created successfully:", response.data);
             return response.data;
         } catch (error: any) {
@@ -65,6 +60,6 @@ export class Api {
             throw error;
         }
     }
-
-
 }
+
+export default new Api();
