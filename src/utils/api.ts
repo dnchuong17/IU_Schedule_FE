@@ -1,4 +1,3 @@
-// api.ts
 import axios, { AxiosInstance } from "axios";
 import { LoginRequest } from "../utils/request/loginRequest";
 import { RegisterRequest } from "../utils/request/registerRequest";
@@ -60,6 +59,18 @@ export class Api {
             throw error;
         }
     }
+
+    async updateDeadlineAlert(deadlineId: string, isActive: boolean) {
+        try {
+            const response = await this.axiosObject.patch(`/deadline/${deadlineId}`, { isActive });
+            console.log("Deadline alert updated successfully:", response.data);
+            return response.data;
+        } catch (error: any) {
+            console.error("Failed to update deadline alert:", error.response?.data || error.message);
+            throw error;
+        }
+    }
+
 }
 
 export default new Api();

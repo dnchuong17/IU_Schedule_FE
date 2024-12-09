@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
-import { Api } from "../../utils/api";
+import { Api } from "../../utils/api.ts";
 import { FiBell, FiBellOff } from "react-icons/fi";
 import { DeadlineType, DeadlineRequest } from "@/utils/request/deadlineRequest";
 
@@ -24,7 +24,6 @@ const DeadlinePopUp: React.FC<{ onClose: () => void; positionStyle?: React.CSSPr
             return;
         }
 
-        // Convert deadline to date object
         const parsedDeadline = new Date(deadline);
         if (isNaN(parsedDeadline.getTime())) {
             alert("Invalid deadline format.");
@@ -58,8 +57,16 @@ const DeadlinePopUp: React.FC<{ onClose: () => void; positionStyle?: React.CSSPr
         setDeadlineType(type);
     };
 
-    const handleBellClick = () => {
+    const handleBellClick = async () => {
         setBellClicked(!bellClicked);
+        try {
+            const api = new Api();
+            await api.updateDeadlineAlert("some-deadline-id", !bellClicked);
+            alert(bellClicked ? "Deadline alert deactivated" : "Deadline alert activated");
+        } catch (error: any) {
+            console.error("Error updating deadline alert:", error.response?.data || error.message);
+            alert(`Failed to update deadline alert: ${error.response?.data?.message || error.message}`);
+        }
     };
 
     if (!isVisible) return null;
