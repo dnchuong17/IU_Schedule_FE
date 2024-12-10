@@ -46,3 +46,4 @@ const NotePopUp: React.FC<NotePopUpProps> = ({ onClose }) => {
 };
 
 export default NotePopUp;
+

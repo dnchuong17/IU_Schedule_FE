@@ -54,7 +54,7 @@ import { Helmet } from "react-helmet"
 import { fetchWorkflows, ApiWorkflow, addWorkflows } from "@/lib/API"
 import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
-import { BarLoader, HashLoader } from "react-spinners"
+  import { BarLoader, HashLoader } from "react-spinners"
 
 interface Workflow {
   index: number
