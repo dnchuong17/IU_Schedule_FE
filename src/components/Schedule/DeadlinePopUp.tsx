@@ -4,7 +4,13 @@ import { Api } from "../../utils/api.ts";
 import { FiBell, FiBellOff } from "react-icons/fi";
 import { DeadlineType, DeadlineRequest } from "@/utils/request/deadlineRequest";
 
-const DeadlinePopUp: React.FC<{ onClose: () => void; positionStyle?: React.CSSProperties; }> = ({ onClose }) => {
+interface DeadlinePopUpProps {
+    onClose?: () => void; // Made onClose optional
+    positionStyle?: React.CSSProperties;
+}
+
+
+const DeadlinePopUp: React.FC<DeadlinePopUpProps> = ({ onClose }) => {
     const [isVisible, setIsVisible] = useState(true);
     const [deadlineType, setDeadlineType] = useState<DeadlineType | "">("");
     const [priority, setPriority] = useState<"High" | "Medium" | "Low" | "">("");

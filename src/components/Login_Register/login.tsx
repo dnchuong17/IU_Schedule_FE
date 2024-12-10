@@ -1,6 +1,5 @@
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { Api } from "../../utils/api";
-import { LoginRequest } from "../../utils/request/loginRequest";
 import { FaUser, FaLock } from 'react-icons/fa';
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useNavigate } from 'react-router-dom';
@@ -30,7 +29,7 @@ const Login: React.FC = () => {
             if (response) {
                 setLoginMessage("Login successful!");
                 setTimeout(() => {
-                    // navigate("/page1");
+                    navigate("/scheduleView");
                 }, 3000);
             } else {
                 setLoginMessage("Account does not exist.");
