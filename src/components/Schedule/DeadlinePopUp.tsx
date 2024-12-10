@@ -36,7 +36,7 @@ const DeadlinePopUp: React.FC<{ onClose: () => void; positionStyle?: React.CSSPr
             deadlineType: deadlineType as DeadlineType,
             priority,
             description,
-            date: parsedDeadline,
+            deadline: parsedDeadline,
             courseValueId: Number(courseValueId),
         };
         console.log(deadlineRequest);
