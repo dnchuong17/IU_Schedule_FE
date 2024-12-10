@@ -1,12 +1,14 @@
 import axios, { AxiosInstance } from "axios";
-import { RegisterRequest } from "./request/registerRequest";
+import { LoginRequest } from "../utils/request/loginRequest";
+import { RegisterRequest } from "../utils/request/registerRequest";
+import { DeadlineRequest } from "@/utils/request/deadlineRequest";
 
 export class Api {
     private axiosObject: AxiosInstance;
 
     constructor() {
         this.axiosObject = axios.create({
-            baseURL: "http://localhost:3000",
+            baseURL: "http://localhost:3000/api",
             withCredentials: true,
         });
     }
@@ -15,16 +17,16 @@ export class Api {
         return this.axiosObject;
     }
 
-    async login(loginRequest: { username: string; password: string }) {
-        const { username, password } = loginRequest;
+    async login(loginRequest: LoginRequest) {
+        const { email, password } = loginRequest;
         try {
-            const response = await this.axiosObject.post("/auth/login", {
-                username,
+            const result1 = await this.axiosObject.post("/auth/login", {
+                email,
                 password,
             });
-            localStorage.setItem("accessToken", response.data.access_token);
-            localStorage.setItem("refreshToken", response.data.refresh_token);
-            return response.data;
+            localStorage.setItem("accessToken", result1.data.access_token);
+            localStorage.setItem("refreshToken", result1.data.refresh_token);
+            return result1.data;
         } catch (error: any) {
             console.error("Login failed:", error.response?.data || error.message);
             throw error;
@@ -33,21 +35,42 @@ export class Api {
 
     async register(registerRequest: RegisterRequest) {
         try {
-            const { name, username, password, student_id } = registerRequest;
-            console.log(name, username, password, student_id);
-
             const response = await this.axiosObject.post("/auth/register", {
-                name,
-                username,
-                password,
-                student_id,
+                name: registerRequest.name,
+                email: registerRequest.email,
+                password: registerRequest.password,
+                student_id: registerRequest.student_id,
             });
-
-            console.log(response.data);
+            console.log("Server response:", response.data);
             return response.data;
         } catch (error: any) {
             console.error("Registration failed:", error.response?.data || error.message);
+            throw error; // Re-throw error for higher-level handling
+        }
+    }
+
+    async createDeadline(deadlineRequest: DeadlineRequest) {
+        try {
+            const response = await this.axiosObject.post("/deadline/create", deadlineRequest);
+            console.log("Deadline created successfully:", response.data);
+            return response.data;
+        } catch (error: any) {
+            console.error("Failed to create deadline:", error.response?.data || error.message);
             throw error;
         }
     }
+
+    async updateDeadlineAlert(deadlineId: string, isActive: boolean) {
+        try {
+            const response = await this.axiosObject.patch(`/deadline/${deadlineId}`, { isActive });
+            console.log("Deadline alert updated successfully:", response.data);
+            return response.data;
+        } catch (error: any) {
+            console.error("Failed to update deadline alert:", error.response?.data || error.message);
+            throw error;
+        }
+    }
+
 }
+
+export default new Api();

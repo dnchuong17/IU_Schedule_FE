@@ -1,6 +1,5 @@
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { Api } from "../../utils/api";
-import { LoginRequest } from "../../utils/request/loginRequest";
 import { FaUser, FaLock } from 'react-icons/fa';
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useNavigate } from 'react-router-dom';
@@ -21,9 +20,7 @@ const Login: React.FC = () => {
 
     const onSubmitHandler = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-
-        const loginRequest = new LoginRequest(username, password);
-        console.log(loginRequest);
+        const loginRequest = { email: username, password: password };
 
         try {
             const response = await api.login(loginRequest);
@@ -31,7 +28,9 @@ const Login: React.FC = () => {
 
             if (response) {
                 setLoginMessage("Login successful!");
-                navigate("/");
+                setTimeout(() => {
+                    navigate("/scheduleView");
+                }, 3000);
             } else {
                 setLoginMessage("Account does not exist.");
             }
@@ -124,7 +123,6 @@ const Login: React.FC = () => {
                         <div className="flex flex-col mt-8 justify-between items-center gap-y-4">
                             <button
                                 type="button"
-                                // onClick={() => setIsOpen(false)}
                                 className="text-blue-500 hover:underline"
                             >
                                 Forgot password?
@@ -139,7 +137,6 @@ const Login: React.FC = () => {
 
                             <button
                                 type="button"
-                                // onClick={() => setIsOpen(false)}
                                 className="text-blue-500 hover:underline"
                             >
                                 Do not have an account!
