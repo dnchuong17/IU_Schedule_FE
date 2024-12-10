@@ -1,5 +1,5 @@
 import { WeekDate } from "./schedule";
-import { Browser } from "./utils";
+type Browser = "firefox" | "chromium";
 
 export interface ClassObject {
   id: string;
