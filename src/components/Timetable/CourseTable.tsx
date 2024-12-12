@@ -12,7 +12,7 @@ import {
   toggleAllState,
   deleteCourse,
   toggleCourseState,
-  // getCourseState,
+  getCourseState,
   toggleClassState,
   deleteClass,
 } from "../../lib/courseAndClassUtils";
@@ -160,10 +160,38 @@ const CourseTable: React.FC<CourseTableProps> = ({
   };
   //--new code
   const toggleAllStateHandler = () => {
-    const newCoursesMap = new Map(coursesMap);
-    toggleAllState(newCoursesMap);
-    onSelectionChange(newCoursesMap);
-    setCoursesMap(newCoursesMap);
+    setCoursesMap((prevCoursesMap) => {
+      const updatedCoursesMap = new Map(prevCoursesMap);
+
+      // Determine if all courses are currently selected
+      const allSelected = Array.from(updatedCoursesMap.values()).every(
+        (course) => getCourseState(course)
+      );
+
+      // New state is the opposite of current allSelected
+      const newState = !allSelected;
+
+      // Toggle each course to the new state
+      updatedCoursesMap.forEach((course) => {
+        toggleCourseState(updatedCoursesMap, course, newState);
+      });
+
+      // Update selectedClasses based on newState
+      setSelectedClasses(() => {
+        if (!newState) {
+          // Select all class IDs
+          const allClassIds = Array.from(updatedCoursesMap.values()).flatMap(
+            (course) => Array.from(course.classesMap.keys())
+          );
+          return new Set(allClassIds);
+        } else {
+          // Deselect all classes
+          return new Set();
+        }
+      });
+
+      return updatedCoursesMap;
+    });
   };
   const deleteAllHandler = () => {
     onSelectionChange(new Map());
@@ -173,11 +201,29 @@ const CourseTable: React.FC<CourseTableProps> = ({
   // };
 
   // Toggle the state of a specific course
-  const toggleCourseStateHandler = (courseObject: CourseObject) => {
-    const newCoursesMap = new Map(coursesMap);
-    toggleCourseState(newCoursesMap, courseObject);
-    onSelectionChange(newCoursesMap);
-    setCoursesMap(newCoursesMap);
+  const toggleCourseStateHandler = (courseId: string) => {
+    setCoursesMap((prevCoursesMap) => {
+      const updatedCoursesMap = new Map(prevCoursesMap);
+      const course = updatedCoursesMap.get(courseId);
+      if (course) {
+        const newState = toggleCourseState(updatedCoursesMap, course);
+
+        // Update selectedClasses based on newState
+        setSelectedClasses((prevSelected) => {
+          const updatedSelected = new Set(prevSelected);
+          Array.from(course.classesMap.keys()).forEach((classId) => {
+            if (!newState) {
+              updatedSelected.add(classId);
+            } else {
+              updatedSelected.delete(classId);
+              console.log("Deleted classId:", classId); // Logging classId
+            }
+          });
+          return updatedSelected;
+        });
+      }
+      return updatedCoursesMap;
+    });
   };
 
   // Delete a specific course
@@ -187,17 +233,32 @@ const CourseTable: React.FC<CourseTableProps> = ({
     onSelectionChange(newCoursesMap);
     setCoursesMap(newCoursesMap);
   };
-  const toggleClassStateHandler = (courseId: string, classId: string) => {
-    const newCoursesMap = new Map(coursesMap);
-    const course = newCoursesMap.get(courseId);
-    if (course) {
-      const classObject = course.classesMap.get(classId);
-      if (classObject) {
-        toggleClassState(newCoursesMap, classObject);
-        onSelectionChange(newCoursesMap);
-        setCoursesMap(newCoursesMap);
+
+  const toggleSelectClassHandler = (courseId: string, classId: string) => {
+    console.log("Selected classId:", classId); // Logging classId
+
+    setSelectedClasses((prevSelected) => {
+      const updatedSelected = new Set(prevSelected);
+      if (updatedSelected.has(classId)) {
+        updatedSelected.delete(classId);
+      } else {
+        updatedSelected.add(classId);
       }
-    }
+      return updatedSelected;
+    });
+  };
+  const toggleClassStateHandler = (courseId: string, classId: string) => {
+    setCoursesMap((prevCoursesMap) => {
+      const updatedCoursesMap = new Map(prevCoursesMap);
+      const course = updatedCoursesMap.get(courseId);
+      if (course) {
+        const classObj = course.classesMap.get(classId);
+        if (classObj) {
+          toggleClassState(updatedCoursesMap, classObj);
+        }
+      }
+      return updatedCoursesMap;
+    });
   };
 
   const deleteClassHandler = (courseId: string, classId: string) => {
@@ -283,10 +344,9 @@ const CourseTable: React.FC<CourseTableProps> = ({
                             <input
                               className="h-[21px] w-[21px] rounded border-slate-300 text-sky-500 transition-colors hover:text-sky-300 focus:border-sky-300 focus:ring focus:ring-sky-200 focus:ring-offset-2"
                               type="checkbox"
-                              onChange={() => {
-                                toggleCourseStateHandler(courseObject);
-                                // handleCourseSelect(courseObject.id); // Ensure this function exists and is correctly implemented
-                              }}
+                              onChange={() =>
+                                toggleCourseStateHandler(courseKey)
+                              }
                             />
                             <strong>{courseObject.name}</strong>
                           </td>
@@ -307,7 +367,7 @@ const CourseTable: React.FC<CourseTableProps> = ({
                               key={classObj.id}
                               classItem={classObj}
                               courseId={courseKey}
-                              onToggleSelectClass={toggleClassStateHandler}
+                              onToggleSelectClass={toggleSelectClassHandler}
                               onDeleteClass={deleteClassHandler}
                               isSelected={selectedClasses.has(classObj.id)}
                             />
