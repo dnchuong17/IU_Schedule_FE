@@ -6,8 +6,8 @@ import NotePopUp from "./NotePopUp";
 import NotificationPopUp from "./NotificationPopUp";
 import "react-toastify/dist/ReactToastify.css";
 
-const daysOfWeek = ["Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy", "Chủ Nhật"];
-const lessonSlots = Array.from({ length: 16 }, (_, i) => `Tiết ${i + 1}`);
+const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const lessonSlots = Array.from({ length: 16 }, (_, i) => `Leson ${i + 1}`);
 
 const ScheduleView = () => {
     const [scheduleData, setScheduleData] = useState<any[]>([]);
@@ -16,6 +16,7 @@ const ScheduleView = () => {
     const [showDeadlinePopup, setShowDeadlinePopup] = useState(false);
     const [showNotePopup, setShowNotePopup] = useState(false);
     const [showNotificationPopup, setShowNotificationPopup] = useState(false);
+    const [customEvents, setCustomEvents] = useState<{ [key: string]: string }>({});
 
     const api = new Api();
 
@@ -33,7 +34,19 @@ const ScheduleView = () => {
 
                 setLoading(true);
 
-                const user = await api.findUserById(user_id);
+                const userId = parseInt(user_id, 10); // Convert user_id to a number
+                if (isNaN(userId)) {
+                    toast.error("Invalid User ID. Please login again!", {
+                        position: "top-right",
+                        autoClose: 3000,
+                    });
+                    return;
+                }
+
+                setLoading(true);
+
+
+                const user = await api.findUserById(userId);
                 if (!user || !user.scheduler_ids || user.scheduler_ids.length === 0) {
                     toast.error("Scheduler ID not found for this user!", {
                         position: "top-right",
@@ -74,6 +87,20 @@ const ScheduleView = () => {
         ) || null;
     };
 
+    const handleAddEvent = (day: string, lessonIndex: number) => {
+        const eventKey = `${day}-${lessonIndex}`;
+        const customEvent = prompt("Enter your event:");
+        if (customEvent) {
+            setCustomEvents({ ...customEvents, [eventKey]: customEvent });
+        }
+    };
+
+    const getCurrentDayIndex = () => {
+        const today = new Date().getDay();
+        // Map JS getDay() (0=Sunday, 6=Saturday) to schedule index (0=Monday, 6=Sunday)
+        return today === 0 ? 6 : today - 1;
+    };
+
     return (
         <div className="text-center font-sans p-6">
             <ToastContainer />
@@ -83,13 +110,15 @@ const ScheduleView = () => {
             {error && <p className="text-red-500">{error}</p>}
 
             {!loading && !error && (
-                <div className="max-w-4xl mx-auto text-sm border border-black p-4 shadow-md rounded-md bg-white">
-                    <div className="grid grid-cols-8 border border-black" style={{ borderCollapse: "collapse" }}>
-                        <div className="bg-gray-200 border border-black text-center font-semibold">&nbsp;</div>
+                <div className="max-w-4xl mx-auto text-sm border border-gray-300 p-4 shadow-md rounded-md bg-white">
+                    <div className="grid grid-cols-8 border border-black" style={{borderCollapse: "collapse"}}>
+                        <div className="bg-gray-200 text-center font-semibold border border-black"></div>
                         {daysOfWeek.map((day, index) => (
                             <div
                                 key={index}
-                                className="bg-blue-600 text-white font-semibold p-1 border border-black text-center"
+                                className={`bg-blue-600 text-white font-semibold p-2 border border-black ${
+                                    getCurrentDayIndex() === index ? "bg-green-500" : ""
+                                }`}
                             >
                                 {day}
                             </div>
@@ -97,13 +126,15 @@ const ScheduleView = () => {
 
                         {lessonSlots.map((slot, rowIndex) => (
                             <React.Fragment key={rowIndex}>
-                                <div className="bg-gray-100 text-center font-semibold p-1 border border-black">
+                                <div className="bg-gray-100 text-center font-semibold p-2 border border-black">
                                     {slot}
                                 </div>
 
                                 {daysOfWeek.map((day, colIndex) => {
                                     const entry = findSubject(day, rowIndex);
                                     const isStartLesson = entry && rowIndex + 1 === parseInt(entry.start_period);
+                                    const eventKey = `${day}-${rowIndex}`;
+                                    const customEvent = customEvents[eventKey];
 
                                     if (isStartLesson) {
                                         return (
@@ -115,7 +146,7 @@ const ScheduleView = () => {
                                                 }}
                                             >
                                                 <strong>{entry.course_name}</strong>
-                                                <br />
+                                                <br/>
                                                 <em>Phòng: {entry.location}</em>
                                             </div>
                                         );
@@ -126,25 +157,36 @@ const ScheduleView = () => {
                                     return (
                                         <div
                                             key={`${rowIndex}-${colIndex}`}
-                                            className="p-2 border border-black bg-gray-50"
-                                        ></div>
+                                            className="p-2 border border-black bg-gray-50 cursor-pointer hover:bg-blue-100"
+                                            onClick={() => handleAddEvent(day, rowIndex)}
+                                        >
+                                            {customEvent &&
+                                                <span className="text-xs text-blue-500">{customEvent}</span>}
+                                        </div>
                                     );
                                 })}
                             </React.Fragment>
                         ))}
                     </div>
+
                 </div>
             )}
 
             <div className="flex justify-center gap-4 mt-4">
-                <button onClick={() => setShowDeadlinePopup(true)} className="px-3 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg">Set Deadline</button>
-                <button onClick={() => setShowNotePopup(true)} className="px-3 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg">Notes</button>
-                <button onClick={() => setShowNotificationPopup(true)} className="px-3 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg">Notifications</button>
+                <button onClick={() => setShowDeadlinePopup(true)}
+                        className="px-3 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg">Set Deadline
+                </button>
+                <button onClick={() => setShowNotePopup(true)}
+                        className="px-3 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg">Notes
+                </button>
+                <button onClick={() => setShowNotificationPopup(true)}
+                        className="px-3 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg">Notifications
+                </button>
             </div>
 
-            {showDeadlinePopup && <DeadlinePopUp onClose={() => setShowDeadlinePopup(false)} />}
-            {showNotePopup && <NotePopUp onClose={() => setShowNotePopup(false)} />}
-            {showNotificationPopup && <NotificationPopUp onClose={() => setShowNotificationPopup(false)} />}
+            {showDeadlinePopup && <DeadlinePopUp onClose={() => setShowDeadlinePopup(false)}/>}
+            {showNotePopup && <NotePopUp onClose={() => setShowNotePopup(false)}/>}
+            {showNotificationPopup && <NotificationPopUp onClose={() => setShowNotificationPopup(false)}/>}
         </div>
     );
 };
