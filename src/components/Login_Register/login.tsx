@@ -26,7 +26,8 @@ const Login: React.FC = () => {
             const response = await api.login(loginRequest);
             console.log(response)
 
-            if (response) {
+            if (response && response.user_id) {
+                localStorage.setItem("user_id", response.user_id);
                 setLoginMessage("Login successful!");
                 setTimeout(() => {
                     navigate("/scheduleView");
