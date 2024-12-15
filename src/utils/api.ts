@@ -54,7 +54,7 @@ export class Api {
             return response.data;
         } catch (error: any) {
             console.error("Registration failed:", error.response?.data || error.message);
-            throw error; // Re-throw error for higher-level handling
+            throw error;
         }
     }
 
