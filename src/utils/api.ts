@@ -24,14 +24,23 @@ export class Api {
                 email,
                 password,
             });
+
+            // Store tokens
             localStorage.setItem("accessToken", result1.data.access_token);
             localStorage.setItem("refreshToken", result1.data.refresh_token);
+
+            // Store student_id
+            if (result1.data.student_id) {
+                localStorage.setItem("student_id", result1.data.student_id); // Store student_id for later use
+            }
+
             return result1.data;
         } catch (error: any) {
             console.error("Login failed:", error.response?.data || error.message);
             throw error;
         }
     }
+
 
     async register(registerRequest: RegisterRequest) {
         try {
@@ -70,6 +79,31 @@ export class Api {
             throw error;
         }
     }
+
+    async findUserById (user_id: number) {
+        try {
+            const response = await this.axiosObject.get(`/user/${user_id}`);
+            console.log("Find user successfully:", response.data);
+            return response.data;
+        } catch (error: any) {
+            console.log("Failed to find user:", error.response?.data || error.message);
+            throw error;
+        }
+    }
+
+    async getTemplateBySchedulerId (schedulerId: number) {
+        try {
+            const response = await  this.axiosObject.get(`/scheduleTemplate/${schedulerId}`);
+            console.log("Get template successfully: ", response.data);
+            return response.data;
+        } catch (error: any) {
+            console.log("Failed to get template: ", error.response?.data || error.message);
+            throw error;
+        }
+    }
+
+
+
 
 }
 
