@@ -1,16 +1,118 @@
-import React, { useState} from "react";
+import React, { useEffect, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { Api } from "../../utils/api.ts";
 import { FiBell, FiBellOff } from "react-icons/fi";
 import { DeadlineType, DeadlineRequest } from "@/utils/request/deadlineRequest";
+
+interface DeadlineNotification {
+    id: number;
+    isActive: boolean;
+    deadlineType: string;
+    priority: string;
+    description: string;
+    deadline: string;
+    courseValueId: number;
+  }
 
 interface DeadlinePopUpProps {
     onClose?: () => void; // Made onClose optional
     positionStyle?: React.CSSProperties;
 }
 
+export const DeadlineNotifications: React.FC = () => {
+    const [deadlines, setDeadlines] = useState<DeadlineNotification[]>([]);
+    const [courseValueId, setCourseValueId] = useState<number | "">("");
+  
+    useEffect(() => {
+      const fetchDeadlines = async () => {
+        if (!courseValueId) return;
+  
+        try {
+          const api = new Api();
+          const response = await api.getAllDeadlines();
+  
+          const priorityOrder: { HIGH: number; MEDIUM: number; LOW: number } = {
+            HIGH: 1,
+            MEDIUM: 2,
+            LOW: 3,
+          };
+          
+          const sortedDeadlines = response.data.sort((a: DeadlineNotification, b: DeadlineNotification) => {
+            const priorityA = priorityOrder[a.priority.toUpperCase() as keyof typeof priorityOrder] || 4; // Default to lowest priority if invalid
+            const priorityB = priorityOrder[b.priority.toUpperCase() as keyof typeof priorityOrder] || 4;
+          
+            if (priorityA !== priorityB) {
+              return priorityA - priorityB;
+            }
+            return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
+          });
+          setDeadlines(sortedDeadlines);
+        } catch (error: any) {
+          console.error("Failed to fetch deadlines:", error.response?.data || error.message);
+        }
+      };
+  
+      fetchDeadlines();
+    }, [courseValueId]);
+  
+    const renderPriorityClass = (priority: string) => {
+      switch (priority.toUpperCase()) {
+        case "HIGH":
+          return "text-red-600 font-bold";
+        case "MEDIUM":
+          return "text-yellow-600 font-semibold";
+        case "LOW":
+          return "text-green-600 font-normal";
+        default:
+          return "text-gray-600";
+      }
+    };
+  
+    return (
+      <div>
+        {/* Input to select courseValueId */}
+        <div className="fixed top-4 right-4 bg-white shadow-md p-4 rounded-lg w-72">
+          <h2 className="text-xl font-semibold text-blue-600 mb-2">Course Deadlines</h2>
+          <label className="block text-gray-700 text-sm mb-2 font-bold">
+            Course Value ID:
+          </label>
+          <input
+            type="number"
+            value={courseValueId}
+            onChange={(e) => setCourseValueId(e.target.value ? Number(e.target.value) : "")}
+            placeholder="Enter course ID"
+            className="w-full px-3 py-2 border rounded-lg focus:ring focus:ring-blue-400"
+          />
+        </div>
+  
+        {/* Notifications Sidebar */}
+        <div className="fixed top-16 right-4 w-72 bg-white shadow-lg rounded-lg p-4 overflow-y-auto max-h-[80vh]">
+          <h3 className="text-lg font-bold text-gray-700 mb-4">Upcoming Deadlines</h3>
+          {deadlines.length > 0 ? (
+            deadlines.map((deadline) => (
+              <div
+                key={deadline.id}
+                className="mb-4 p-4 border rounded-lg shadow-md bg-gray-50"
+              >
+                <div className="flex justify-between items-center">
+                  <h3 className="text-md font-medium">{deadline.deadlineType}</h3>
+                  <span className={renderPriorityClass(deadline.priority)}>{deadline.priority}</span>
+                </div>
+                <p className="text-sm text-gray-600">{deadline.description}</p>
+                <p className="text-xs text-gray-500">
+                  Deadline: {new Date(deadline.deadline).toLocaleString()}
+                </p>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-gray-500">No deadlines found.</p>
+          )}
+        </div>
+      </div>
+    );
+  };
 
-const DeadlinePopUp: React.FC<DeadlinePopUpProps> = ({ onClose }) => {
+export const DeadlinePopUp: React.FC<DeadlinePopUpProps> = ({ onClose }) => {
     const [isVisible, setIsVisible] = useState(true);
     const [deadlineType, setDeadlineType] = useState<DeadlineType | "">("");
     const [priority, setPriority] = useState<"High" | "Medium" | "Low" | "">("");
@@ -203,4 +305,9 @@ const DeadlinePopUp: React.FC<DeadlinePopUpProps> = ({ onClose }) => {
     );
 };
 
-export default DeadlinePopUp;
+const DeadlineComponents = {
+    Notifications: DeadlineNotifications,
+    PopUp: DeadlinePopUp,
+  };
+  
+  export default DeadlineComponents;

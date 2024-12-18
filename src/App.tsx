@@ -1,5 +1,5 @@
 import WorkflowList from "./pages/WorkflowList"
-import DeadlinePopUp from "./components/Schedule/DeadlinePopUp"
+import DeadlineComponents from "./components/Schedule/DeadlinePopUp"
 import NotePopUp from "./components/Schedule/NotePopUp"
 import NotificationPopUp from "./components/Schedule/NotificationPopUp"
 import Login from "./components/Login_Register/login.tsx"
@@ -59,7 +59,12 @@ function App() {
 
           <Route
             path="/deadlinePopUp"
-            element={<DeadlinePopUp />}
+            element={
+              <div>
+                <DeadlineComponents.Notifications />
+                <DeadlineComponents.PopUp />
+              </div>
+            }
           />
           <Route
             path="/notePopUp"

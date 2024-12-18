@@ -80,6 +80,17 @@ export class Api {
         }
     }
 
+    async getAllDeadlines () {
+        try {
+            const response = await  this.axiosObject.get(`/deadline/`);
+            console.log("Get all deadlines successfully: ", response.data);
+            return response.data;
+        } catch (error: any) {
+            console.log("Failed to all deadlines: ", error.response?.data || error.message);
+            throw error;
+        }
+    }
+
     async findUserById (user_id: number) {
         try {
             const response = await this.axiosObject.get(`/user/${user_id}`);
