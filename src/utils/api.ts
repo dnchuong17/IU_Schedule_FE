@@ -80,13 +80,13 @@ export class Api {
         }
     }
 
-    async findUserById (user_id: number) {
+    async getTemplateId (user_id: number) {
         try {
-            const response = await this.axiosObject.get(`/user/${user_id}`);
-            console.log("Find user successfully:", response.data);
+            const response = await this.axiosObject.get(`/scheduleTemplate/templateIds/${user_id}`);
+            console.log("Get template Id successfully: ", response.data);
             return response.data;
         } catch (error: any) {
-            console.log("Failed to find user:", error.response?.data || error.message);
+            console.log("Failed to get template Id: ", error.response?.data || error.message);
             throw error;
         }
     }
