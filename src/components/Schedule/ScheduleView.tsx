@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
-import { Api } from "../../utils/api.ts";
+import { Api } from "@/utils/api.ts";
 import "react-toastify/dist/ReactToastify.css";
 import Login from "../Login_Register/login.tsx";
 

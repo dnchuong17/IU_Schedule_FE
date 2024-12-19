@@ -38,6 +38,12 @@ const NotFound = () => {
 }
 
 function App() {
+
+    const handleLoginSuccess = () => {
+        console.log("Login successful")
+    }
+
+
   return (
     <Router>
       <Routes>
@@ -69,11 +75,10 @@ function App() {
             path="/notificationPopUp"
             element={<NotificationPopUp />}
           />
-          <Route
-            path="/login"
-            element={<Login />}
-          />
-          <Route
+
+            <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
+
+            <Route
             path="/register"
             element={<Register />}
           />
