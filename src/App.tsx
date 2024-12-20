@@ -10,6 +10,7 @@ import Footer from "./components/Header_Footer/footer.tsx"
 import Header from "./components/Header_Footer/header.tsx"
 import { BrowserRouter as Router } from "react-router-dom"
 import { Route, Routes, Outlet, Navigate } from "react-router-dom"
+import TimeTable from "../src/pages/TimeTable.tsx"
 
 // Layout component that includes Header and Footer
 const DefaultLayout = () => {
@@ -91,7 +92,13 @@ function App() {
             element={<Filters />}
           />
 
-          <Route
+            <Route
+                path="/timeTable"
+                element={<TimeTable />}
+            />
+
+
+            <Route
             path="*"
             element={<NotFound />}
           />
