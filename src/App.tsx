@@ -6,10 +6,11 @@ import Login from "./components/Login_Register/login.tsx"
 import Register from "./components/Login_Register/register.tsx"
 import Filters from "./components/Timetable/Filters.tsx"
 import ScheduleView from "./components/Schedule/ScheduleView"
-import Footer from "./components/Header_Footer/footer.tsx"
-import Header from "./components/Header_Footer/header.tsx"
+import Footer from "@/components/HomePage/footer.tsx"
+import Header from "@/components/HomePage/header.tsx"
 import { BrowserRouter as Router } from "react-router-dom"
 import { Route, Routes, Outlet, Navigate } from "react-router-dom"
+import HomePage from "../src/pages/HomePage.tsx"
 
 // Layout component that includes Header and Footer
 const DefaultLayout = () => {
@@ -39,9 +40,6 @@ const NotFound = () => {
 
 function App() {
 
-    const handleLoginSuccess = () => {
-        console.log("Login successful")
-    }
 
 
   return (
@@ -52,9 +50,14 @@ function App() {
           element={<WorkflowList />}
         />
 
+          <Route
+              path = "/"
+              element={<HomePage />}
+          />
+
         <Route element={<DefaultLayout />}>
           <Route
-            path="/"
+            path="/scheduleView"
             element={
               <Navigate
                 to="/scheduleView"
@@ -76,7 +79,7 @@ function App() {
             element={<NotificationPopUp />}
           />
 
-            <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
+            <Route path="/login" element={<Login />} />
 
             <Route
             path="/register"
@@ -95,6 +98,8 @@ function App() {
             path="*"
             element={<NotFound />}
           />
+
+
         </Route>
       </Routes>
     </Router>
