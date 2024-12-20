@@ -10,12 +10,14 @@ import Footer from "@/components/HomePage/footer.tsx"
 import Header from "@/components/HomePage/header.tsx"
 import { BrowserRouter as Router } from "react-router-dom"
 import { Route, Routes, Outlet, Navigate } from "react-router-dom"
-import HomePage from "../src/pages/HomePage.tsx"
+import Navbar from "../src/components/HomePage/navbar.tsx"
+
 
 // Layout component that includes Header and Footer
 const DefaultLayout = () => {
   return (
     <>
+        <Navbar />
       <Header />
       <Outlet />
       <Footer />
@@ -50,10 +52,6 @@ function App() {
           element={<WorkflowList />}
         />
 
-          <Route
-              path = "/"
-              element={<HomePage />}
-          />
 
         <Route element={<DefaultLayout />}>
           <Route
@@ -90,7 +88,7 @@ function App() {
             element={<ScheduleView />}
           />
           <Route
-            path="/filters"
+            path="/"
             element={<Filters />}
           />
 
