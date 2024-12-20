@@ -172,10 +172,10 @@ export function _fillOptionalFields(classData: string[]) {
     const value = classData.at(-i);
     if (value == undefined) throw new Error("Failed to match: Missing columns");
 
-    if (value.match(/^([\d\/\-]+(___[\d\/\-]+)?)$/)) {
+    if (value.match(/^([\d/-]+(___[\d/-]+)?)$/)) {
       // Match anchor ()
       continue;
-    } else if (!hasLab && value.match(/^[\*\s]?$/)) {
+    } else if (!hasLab && value.match(/^[*\s]?$/)) {
       // Match Teacher name "*", ""
       hasLab = true;
     } else if (
@@ -254,7 +254,7 @@ export function decompressCoursesStr(
 ) {
   const coursesMap: CoursesMap = new Map();
   try {
-    const coursesArr = coursesStr.split(/\!/);
+    const coursesArr = coursesStr.split(/!/);
     for (const courseStr of coursesArr) {
       const courseArr = courseStr.split(/\*/);
       const classesArr = courseArr.at(-1)?.split(/\(/);
