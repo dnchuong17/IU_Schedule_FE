@@ -15,7 +15,7 @@ interface ScheduleTablesProps {
 
 const ScheduleTables = ({ coursesMap }: ScheduleTablesProps) => {
   const deferredCoursesMap = useDeferredValue(coursesMap);
-  const [href, setHref] = useState<string>("");
+  const [, setHref] = useState<string>("");
   const [noAdjacent, setNoAdjacent] = useState<boolean>(true);
   const [hasAnyActive, setHasAnyActive] = useState<boolean>(false);
   const [minFreeDays, setMinFreeDays] = useState<number>(1);
@@ -67,7 +67,10 @@ const ScheduleTables = ({ coursesMap }: ScheduleTablesProps) => {
     );
   }, [completeSchedules, page, perPage]);
 
-  const debounceBlur = debounce((target) => target.blur(), 1000);
+  const debounceBlur = debounce<[HTMLInputElement]>(
+    (target: HTMLInputElement) => target.blur(),
+    1000
+  );
 
   return (
     <section className="flex w-full max-w-screen-lg flex-col gap-8 xl:grid xl:max-w-none xl:grid-cols-2">
@@ -195,15 +198,17 @@ const ScheduleTables = ({ coursesMap }: ScheduleTablesProps) => {
   );
 };
 
-const debounce = (func: (...args: any[]) => void, wait: number) => {
+const debounce = <T extends unknown[]>(
+  func: (...args: T) => void,
+  wait: number
+) => {
   let timeout: NodeJS.Timeout | null;
-  return (...args: any[]) => {
-    // @ts-ignore
-    const context = this;
+  return (...args: unknown[]) => {
+    const context = () => this;
     if (timeout) clearTimeout(timeout);
     timeout = setTimeout(() => {
       timeout = null;
-      func.apply(context, args);
+      func.apply(context, args as T);
     }, wait);
   };
 };
