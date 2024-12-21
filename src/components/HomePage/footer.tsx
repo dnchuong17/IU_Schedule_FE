@@ -4,6 +4,7 @@ import {
     FaLinkedinIn,
     FaInstagram,
 } from "react-icons/fa";
+import viteLogo from '../../assets/logo.png'; 
 
 const Footer = () => {
     return (
@@ -19,12 +20,12 @@ const Footer = () => {
                         {/* Logo and Description */}
                         <div className="flex flex-col items-center lg:items-start mb-10 lg:mb-0 lg:w-1/3">
                             <img
-                                src="#"
+                                src={viteLogo}
                                 className="mb-5 w-32"
-                                alt="IU Health Care Logo"
+                                alt="IU Scheduler Logo"
                             />
-                            <p className="w-full md:w-2/3 text-gray-600">
-                                ..................
+                            <p className="text-xl tracking-wide font-poppins font-bold">
+                                IU Scheduler
                             </p>
                         </div>
 

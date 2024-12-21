@@ -1,6 +1,7 @@
 import { Link, NavLink } from "react-router-dom";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import viteLogo from '../../assets/logo.png'; 
 
 const Navbar = () => {
     const [visible, setVisible] = useState(false);
@@ -13,29 +14,39 @@ const Navbar = () => {
             className="z-50 top-0 w-full"
         >
             <div className="flex items-center justify-between py-5 font-medium">
-                <div className="container mx-auto flex items-center justify-between gap-2 border w-full px-6 py-2 rounded-full shadow-lg">
+                <div className="container mx-auto flex items-center justify-between gap-4 border w-full px-8 py-4 rounded-lg shadow-lg">
                     {/* Logo Section */}
                     <div className="flex items-center space-x-3">
-                        <img className="w-10 h-10" src="../../assets/logo.png" alt="IU Scheduler" />
-                        <p className="text-xl tracking-wide font-poppins font-bold">
+                    <img src={viteLogo} alt="Vite Logo" style={{ height: '50px'}} />
+                        <p className="text-xl tracking-wide font-poppins font-bold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent drop-shadow-lg">
                             IU Scheduler
                         </p>
                     </div>
 
                     {/* Desktop Navigation Links */}
                     <ul className="hidden sm:flex gap-5 text-base text-gray-700">
-                        <NavLink to="/" className="flex flex-col items-center gap-2 font-bold">
-                            <p>HOME</p>
+                        <NavLink to="/" className="flex flex-col items-center gap-2 font-bold group">
+                            <p className="group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-blue-600 group-hover:bg-clip-text group-hover:text-transparent transition-all">
+                                Home
+                            </p>
                             <hr className="w-3/4 border-none h-[1.5px] bg-gray-700 hidden" />
                         </NavLink>
 
-                        <NavLink to="/about" className="flex flex-col items-center gap-2 font-bold">
-                            <p>HOW TO USE</p>
+                        <NavLink to="/scheduleView" className="flex flex-col items-center gap-2 font-bold group">
+                            <p className="group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-blue-600 group-hover:bg-clip-text group-hover:text-transparent transition-all">
+                                Main Schedule
+                            </p>
                             <hr className="w-3/4 border-none h-[1.5px] bg-gray-700 hidden" />
                         </NavLink>
 
-
+                        <NavLink to="/scheduleView" className="flex flex-col items-center gap-2 font-bold group">
+                            <p className="group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-blue-600 group-hover:bg-clip-text group-hover:text-transparent transition-all">
+                                Sub Schedules
+                            </p>
+                            <hr className="w-3/4 border-none h-[1.5px] bg-gray-700 hidden" />
+                        </NavLink>
                     </ul>
+
 
                     {/* Register and Sign In Buttons */}
                     <div className="flex items-center gap-6">
