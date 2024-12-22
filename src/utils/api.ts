@@ -19,7 +19,7 @@ export class Api {
   }
 
   async login(loginRequest: LoginRequest) {
-    const { email, password } = loginRequest;
+    const {email, password} = loginRequest;
     try {
       const result1 = await this.axiosObject.post("/auth/login", {
         email,
@@ -55,8 +55,8 @@ export class Api {
       return response.data;
     } catch (error: any) {
       console.error(
-        "Registration failed:",
-        error.response?.data || error.message
+          "Registration failed:",
+          error.response?.data || error.message
       );
       throw error; // Re-throw error for higher-level handling
     }
@@ -65,15 +65,15 @@ export class Api {
   async createDeadline(deadlineRequest: DeadlineRequest) {
     try {
       const response = await this.axiosObject.post(
-        "/deadline/create",
-        deadlineRequest
+          "/deadline/create",
+          deadlineRequest
       );
       console.log("Deadline created successfully:", response.data);
       return response.data;
     } catch (error: any) {
       console.error(
-        "Failed to create deadline:",
-        error.response?.data || error.message
+          "Failed to create deadline:",
+          error.response?.data || error.message
       );
       throw error;
     }
@@ -88,8 +88,8 @@ export class Api {
       return response.data;
     } catch (error: any) {
       console.error(
-        "Failed to update deadline alert:",
-        error.response?.data || error.message
+          "Failed to update deadline alert:",
+          error.response?.data || error.message
       );
       throw error;
     }
@@ -98,14 +98,14 @@ export class Api {
   async getTemplateId(user_id: number) {
     try {
       const response = await this.axiosObject.get(
-        `/scheduleTemplate/templateIds/${user_id}`
+          `/scheduleTemplate/templateIds/${user_id}`
       );
       console.log("Get template Id successfully: ", response.data);
       return response.data;
     } catch (error: any) {
       console.log(
-        "Failed to get template Id: ",
-        error.response?.data || error.message
+          "Failed to get template Id: ",
+          error.response?.data || error.message
       );
       throw error;
     }
@@ -114,18 +114,19 @@ export class Api {
   async getTemplateBySchedulerId(schedulerId: number) {
     try {
       const response = await this.axiosObject.get(
-        `/scheduleTemplate/${schedulerId}`
+          `/scheduleTemplate/${schedulerId}`
       );
       console.log("Get template successfully: ", response.data);
       return response.data;
     } catch (error: any) {
       console.log(
-        "Failed to get template: ",
-        error.response?.data || error.message
+          "Failed to get template: ",
+          error.response?.data || error.message
       );
       throw error;
     }
   }
+
   async createNewSchedule(scheduleRequest: scheduleRequest) {
     try {
       const studentId = localStorage.getItem("student_id");
@@ -140,20 +141,50 @@ export class Api {
         throw new Error("Scheduler ID is missing.");
       }
       const response = await this.axiosObject.post(
-        "/scheduleTemplate/createSchedule",
-        scheduleRequest // Send directly
+          "/scheduleTemplate/createSchedule",
+          scheduleRequest // Send directly
       );
       console.log("List of Courses:", scheduleRequest.listOfCourses); // Debugging line
       console.log("Schedule created successfully:", response.data);
       return response.data;
     } catch (error: any) {
       console.error(
-        "Create Schedule failed:",
-        error.response?.data || error.message
+          "Create Schedule failed:",
+          error.response?.data || error.message
       );
       throw error;
     }
   }
+
+  async updateNote(content: string, courseValueId: number) {
+    try {
+      const response = await this.axiosObject.patch("/note/update", {
+        content, courseValueId
+      });
+      console.log("Update note successfull: ", response.data);
+      return response.data;
+    } catch (error) {
+      console.log("Error updating note: ", error);
+      throw error;
+    }
+  }
+
+
+  async createNote(content: string, courseValueId: number) {
+    try {
+      const response = await this.axiosObject.post('/note/create', {
+        content,
+        courseValueId
+      });
+      console.log("Create note successfully: ", response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating note:', error);
+      throw error;
+    }
+  }
+
 }
+
 
 export default new Api();
