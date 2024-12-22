@@ -55,8 +55,8 @@ export class Api {
       return response.data;
     } catch (error: any) {
       console.error(
-        "Registration failed:",
-        error.response?.data || error.message
+          "Registration failed:",
+          error.response?.data || error.message
       );
       throw error; // Re-throw error for higher-level handling
     }
@@ -65,15 +65,15 @@ export class Api {
   async createDeadline(deadlineRequest: DeadlineRequest) {
     try {
       const response = await this.axiosObject.post(
-        "/deadline/create",
-        deadlineRequest
+          "/deadline/create",
+          deadlineRequest
       );
       console.log("Deadline created successfully:", response.data);
       return response.data;
     } catch (error: any) {
       console.error(
-        "Failed to create deadline:",
-        error.response?.data || error.message
+          "Failed to create deadline:",
+          error.response?.data || error.message
       );
       throw error;
     }
@@ -88,8 +88,8 @@ export class Api {
       return response.data;
     } catch (error: any) {
       console.error(
-        "Failed to update deadline alert:",
-        error.response?.data || error.message
+          "Failed to update deadline alert:",
+          error.response?.data || error.message
       );
       throw error;
     }
@@ -98,14 +98,14 @@ export class Api {
   async getTemplateId(user_id: number) {
     try {
       const response = await this.axiosObject.get(
-        `/scheduleTemplate/templateIds/${user_id}`
+          `/scheduleTemplate/templateIds/${user_id}`
       );
       console.log("Get template Id successfully: ", response.data);
       return response.data;
     } catch (error: any) {
       console.log(
-        "Failed to get template Id: ",
-        error.response?.data || error.message
+          "Failed to get template Id: ",
+          error.response?.data || error.message
       );
       throw error;
     }
@@ -114,14 +114,14 @@ export class Api {
   async getTemplateBySchedulerId(schedulerId: number) {
     try {
       const response = await this.axiosObject.get(
-        `/scheduleTemplate/${schedulerId}`
+          `/scheduleTemplate/${schedulerId}`
       );
       console.log("Get template successfully: ", response.data);
       return response.data;
     } catch (error: any) {
       console.log(
-        "Failed to get template: ",
-        error.response?.data || error.message
+          "Failed to get template: ",
+          error.response?.data || error.message
       );
       throw error;
     }
@@ -129,27 +129,22 @@ export class Api {
   async createNewSchedule(scheduleRequest: scheduleRequest) {
     try {
       const studentId = localStorage.getItem("student_id");
-      const schedulerId = localStorage.getItem("schedulerId");
       console.log("Retrieved studentId:", studentId); // Verify retrieval
       if (!studentId) {
         console.error("Student ID is missing. Please login again.");
         throw new Error("Student ID is missing.");
       }
-      if (!schedulerId) {
-        console.error("Scheduler ID is missing. Please select a scheduler.");
-        throw new Error("Scheduler ID is missing.");
-      }
       const response = await this.axiosObject.post(
-        "/scheduleTemplate/createSchedule",
-        scheduleRequest // Send directly
+          "/scheduleTemplate/createSchedule",
+          scheduleRequest // Send directly
       );
       console.log("List of Courses:", scheduleRequest.listOfCourses); // Debugging line
       console.log("Schedule created successfully:", response.data);
       return response.data;
     } catch (error: any) {
       console.error(
-        "Create Schedule failed:",
-        error.response?.data || error.message
+          "Create Schedule failed:",
+          error.response?.data || error.message
       );
       throw error;
     }

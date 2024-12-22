@@ -31,7 +31,10 @@ type ScheduleEntry = {
   periods: number;
   course_name: string;
   location: string;
+  course_value_id: number; // Add this field to store the course ID
 };
+
+
 
 const ScheduleView: React.FC = () => {
   const [scheduleData, setScheduleData] = useState<ScheduleEntry[]>([]);
@@ -105,22 +108,19 @@ const ScheduleView: React.FC = () => {
     }
   };
 
-  const findSubject = (
-    day: string,
-    lessonIndex: number
-  ): ScheduleEntry | null => {
-    return (
-      scheduleData.find((item) => {
-        const mappedDay = dayMapping[item.days_in_week];
-        const startPeriod = parseInt(item.start_period, 10);
-        return (
+  const findSubjects = (day: string, lessonIndex: number): ScheduleEntry[] => {
+    return scheduleData.filter((item) => {
+      const mappedDay = dayMapping[item.days_in_week];
+      const startPeriod = parseInt(item.start_period, 10);
+      return (
           mappedDay === day &&
           lessonIndex + 1 >= startPeriod &&
           lessonIndex + 1 < startPeriod + item.periods
-        );
-      }) || null
-    );
+      );
+    });
   };
+
+
 
   const handleAddEvent = (day: string, lessonIndex: number) => {
     const eventKey = `${day}-${lessonIndex}`;
@@ -134,6 +134,8 @@ const ScheduleView: React.FC = () => {
     const today = new Date().getDay();
     return today === 0 ? 6 : today - 1;
   };
+
+
 
   return (
     <div className="text-center font-sans p-6">
@@ -168,48 +170,52 @@ const ScheduleView: React.FC = () => {
                 ))}
 
                 {lessonSlots.map((slot, rowIndex) => (
-                  <React.Fragment key={rowIndex}>
-                    <div className="bg-gray-200 text-center font-semibold p-2 border">
-                      {slot}
-                    </div>
-                    {daysOfWeek.map((day, colIndex) => {
-                      const entry = findSubject(day, rowIndex);
-                      const isStartLesson =
-                        entry && rowIndex + 1 === parseInt(entry.start_period);
-                      const eventKey = `${day}-${rowIndex}`;
+                    <React.Fragment key={rowIndex}>
+                      <div className="bg-gray-200 text-center font-semibold p-2 border">
+                        {slot}
+                      </div>
+                      {daysOfWeek.map((day, colIndex) => {
+                        const entries = findSubjects(day, rowIndex);
+                        const entry = entries[0]; // Get the first matching entry
+                        const isStartLesson =
+                            entry && rowIndex + 1 === parseInt(entry.start_period, 10);
+                        const eventKey = `${day}-${rowIndex}`;
 
-                      if (isStartLesson) {
+                        if (isStartLesson) {
+                          return (
+                              <div
+                                  key={`${rowIndex}-${colIndex}`}
+                                  className="p-2 border bg-yellow-100 text-sm font-medium text-gray-800"
+                                  style={{ gridRow: `span ${entry.periods}` }}
+                              >
+                                <strong>{entry.course_name}</strong>
+                                <br />
+                                <em>Room: {entry.location}</em>
+                              </div>
+                          );
+                        }
+
+                        if (entry) return null;
+
                         return (
-                          <div
-                            key={`${rowIndex}-${colIndex}`}
-                            className="p-2 border bg-yellow-100 text-sm font-medium text-gray-800"
-                            style={{ gridRow: `span ${entry.periods}` }}
-                          >
-                            <strong>{entry.course_name}</strong>
-                            <br />
-                            <em>Room: {entry.location}</em>
-                          </div>
+                            <div
+                                key={`${rowIndex}-${colIndex}`}
+                                className="p-2 border bg-gray-50 cursor-pointer hover:bg-blue-100"
+                                onClick={() => handleAddEvent(day, rowIndex)}
+                            >
+                              {customEvents[eventKey] && (
+                                  <span className="text-xs text-blue-500">
+              {customEvents[eventKey]}
+            </span>
+                              )}
+                            </div>
                         );
-                      }
-
-                      if (entry) return null;
-
-                      return (
-                        <div
-                          key={`${rowIndex}-${colIndex}`}
-                          className="p-2 border bg-gray-50 cursor-pointer hover:bg-blue-100"
-                          onClick={() => handleAddEvent(day, rowIndex)}
-                        >
-                          {customEvents[eventKey] && (
-                            <span className="text-xs text-blue-500">
-                              {customEvents[eventKey]}
-                            </span>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </React.Fragment>
+                      })}
+                    </React.Fragment>
                 ))}
+
+
+
               </div>
             </div>
           )}
