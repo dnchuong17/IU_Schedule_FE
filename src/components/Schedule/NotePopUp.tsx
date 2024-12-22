@@ -4,7 +4,7 @@ import { Api } from '../../utils/api.ts'; // Import the API class
 
 interface NotePopUpProps {
     onClose?: () => void;
-    courseValueId: number;
+    courseValueId?: number;  // Ensure this is required or optional as per your needs
     existingNote?: string;  // Optional prop to pass existing note content
 }
 
@@ -40,11 +40,11 @@ const NotePopUp: React.FC<NotePopUpProps> = ({ onClose, courseValueId, existingN
         try {
             if (existingNote) {
                 // Update existing note
-                const response = await api.updateNote(content, courseValueId);
+                const response = await api.updateNote(content, courseValueId);  // Pass courseValueId here
                 console.log('Note updated successfully:', response.message);
             } else {
                 // Create a new note
-                const response = await api.createNote(content, courseValueId);
+                const response = await api.createNote(content, courseValueId);  // Pass courseValueId here
                 console.log('Note created successfully:', response.message);
             }
             handleClose(); // Close popup after successful operation

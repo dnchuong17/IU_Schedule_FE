@@ -5,7 +5,7 @@ import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
 interface LoginProps {
-  onLoginSuccess: () => void; // Callback function from parent
+  onLoginSuccess?: () => void; // Callback function from parent
 }
 
 const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {

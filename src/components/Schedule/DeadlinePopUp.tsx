@@ -7,7 +7,7 @@ import { DeadlineType, DeadlineRequest } from "@/utils/request/deadlineRequest";
 interface DeadlinePopUpProps {
     onClose?: () => void;
     positionStyle?: React.CSSProperties;
-    courseValueId: number; // Add this prop
+    courseValueId?: number; // Add this prop
 }
 
 const DeadlinePopUp: React.FC<DeadlinePopUpProps> = ({ onClose, courseValueId }) => {
@@ -43,14 +43,15 @@ const DeadlinePopUp: React.FC<DeadlinePopUpProps> = ({ onClose, courseValueId })
             priority,
             description,
             deadline: parsedDeadline,
-            courseValueId: courseValueId, // Use the prop here
+            courseValueId,
         };
 
         try {
-            const response = await api.createDeadline(deadlineRequest);
+            await api.createDeadline(deadlineRequest);
             alert("Deadline created successfully!");
             handleClose();
         } catch (error: any) {
+            console.error("Error creating deadline:", error);
             alert(`Failed to create deadline: ${error.response?.data?.message || error.message}`);
         }
     };
@@ -63,10 +64,10 @@ const DeadlinePopUp: React.FC<DeadlinePopUpProps> = ({ onClose, courseValueId })
         setBellClicked(!bellClicked);
         try {
             const api = new Api();
-            await api.updateDeadlineAlert(courseValueId, !bellClicked); // Pass courseValueId
+            await api.updateDeadlineAlert(courseValueId, !bellClicked);
             alert(bellClicked ? "Deadline alert deactivated" : "Deadline alert activated");
         } catch (error: any) {
-            console.error("Error updating deadline alert:", error.response?.data || error.message);
+            console.error("Error updating deadline alert:", error);
             alert(`Failed to update deadline alert: ${error.response?.data?.message || error.message}`);
         }
     };

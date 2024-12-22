@@ -25,7 +25,7 @@ const Navbar = () => {
 
                     {/* Desktop Navigation Links */}
                     <ul className="hidden sm:flex gap-5 text-base text-gray-700">
-                        <NavLink to="/" className="flex flex-col items-center gap-2 font-bold group">
+                        <NavLink to="/schedule" className="flex flex-col items-center gap-2 font-bold group">
                             <p className="group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-blue-600 group-hover:bg-clip-text group-hover:text-transparent transition-all">
                                 Home
                             </p>
@@ -39,7 +39,7 @@ const Navbar = () => {
                             <hr className="w-3/4 border-none h-[1.5px] bg-gray-700 hidden" />
                         </NavLink>
 
-                        <NavLink to="/scheduleView" className="flex flex-col items-center gap-2 font-bold group">
+                        <NavLink to="/timeTable" className="flex flex-col items-center gap-2 font-bold group">
                             <p className="group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-blue-600 group-hover:bg-clip-text group-hover:text-transparent transition-all">
                                 Sub Schedules
                             </p>

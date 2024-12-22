@@ -6,8 +6,8 @@ import Login from "./components/Login_Register/login.tsx";
 import Register from "./components/Login_Register/register.tsx";
 import Filters from "./components/Timetable/Filters.tsx";
 import ScheduleView from "./components/Schedule/ScheduleView";
-// import Footer from "./components/HomePage/footer.tsx";
-import Header from "./components/HomePage/header.tsx";
+import Footer from "./components/HomePage/footer.tsx";
+// import Header from "./components/HomePage/header.tsx";
 import { BrowserRouter as Router } from "react-router-dom";
 import { Route, Routes, Outlet, Navigate } from "react-router-dom";
 import Schedule from "./pages/Schedule.tsx";
@@ -18,9 +18,9 @@ const DefaultLayout = () => {
   return (
     <>
         <Navbar />
-      <Header />
+      {/*<Header />*/}
       <Outlet />
-      {/* <Footer /> */}
+       <Footer />
     </>
   );
 };
@@ -38,9 +38,6 @@ const NotFound = () => {
 };
 
 function App() {
-  const handleLoginSuccess = () => {
-    console.log("Login successful");
-  };
   return (
     <Router>
       <Routes>
@@ -56,7 +53,7 @@ function App() {
 
           <Route
             path="/login"
-            element={<Login onLoginSuccess={handleLoginSuccess} />}
+            element={<Login />}
           />
           <Route path="/register" element={<Register />} />
           <Route path="/scheduleView" element={<ScheduleView />} />

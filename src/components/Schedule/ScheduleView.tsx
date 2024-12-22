@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { Api } from "@/utils/api.ts";
 import "react-toastify/dist/ReactToastify.css";
-import Login from "../Login_Register/login.tsx";
 import DeadlinePopUp from "../Schedule/DeadlinePopUp";
 import NotePopUp from "../Schedule/NotePopUp";
 
@@ -73,11 +72,6 @@ const ScheduleView: React.FC = () => {
 
   const api = new Api();
 
-  const handleLoginSuccess = () => {
-    setIsLoggedIn(true);
-    fetchTemplate();
-    toast.success("Login successful!", { autoClose: 3000 });
-  };
 
   useEffect(() => {
     if (isLoggedIn) fetchTemplate();
@@ -155,13 +149,13 @@ const ScheduleView: React.FC = () => {
     setActivePopup({ type: null, course: entry });
   };
 
-  const handleOpenNotePopUp = () => {
-    setActivePopup((prev) => (prev ? { ...prev, type: "note" } : null));
-  };
-
-  const handleOpenDeadlinePopUp = () => {
-    setActivePopup((prev) => (prev ? { ...prev, type: "deadline" } : null));
-  };
+  // const handleOpenNotePopUp = () => {
+  //   setActivePopup((prev) => (prev ? { ...prev, type: "note" } : null));
+  // };
+  //
+  // const handleOpenDeadlinePopUp = () => {
+  //   setActivePopup((prev) => (prev ? { ...prev, type: "deadline" } : null));
+  // };
 
 
 
@@ -178,9 +172,6 @@ const ScheduleView: React.FC = () => {
       <div className="text-center font-sans p-6">
         <ToastContainer />
 
-        {!isLoggedIn ? (
-            <Login onLoginSuccess={handleLoginSuccess} />
-        ) : (
             <div>
               <h1 className="text-3xl font-bold mb-4 text-blue-600">
                 Your Timetable
@@ -254,7 +245,6 @@ const ScheduleView: React.FC = () => {
                   </div>
               )}
             </div>
-        )}
         {activePopup && activePopup.type === "deadline" && (
             <DeadlinePopUp
                 onClose={() => setActivePopup(null)}
@@ -286,6 +276,27 @@ const ScheduleView: React.FC = () => {
                   left: popupPosition.left,
                 }}
             >
+              {/* Close button */}
+              <button
+                  className="absolute top-2 right-2 text-gray-600 hover:text-gray-900 focus:outline-none"
+                  onClick={() => setActivePopup(null)}
+              >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                >
+                  <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+
               <p className="text-xl font-semibold text-gray-700 mb-4 text-center">
                 Add to Course:
               </p>
