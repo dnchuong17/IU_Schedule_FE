@@ -1,31 +1,31 @@
-import React, { useState} from "react";
+import React, { useState, useEffect } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { Api } from "../../utils/api.ts";
 import { FiBell, FiBellOff } from "react-icons/fi";
 import { DeadlineType, DeadlineRequest } from "@/utils/request/deadlineRequest";
 
 interface DeadlinePopUpProps {
-    onClose?: () => void; // Made onClose optional
+    onClose?: () => void;
     positionStyle?: React.CSSProperties;
+    courseValueId: number; // Add this prop
 }
 
-
-const DeadlinePopUp: React.FC<DeadlinePopUpProps> = ({ onClose }) => {
+const DeadlinePopUp: React.FC<DeadlinePopUpProps> = ({ onClose, courseValueId }) => {
     const [isVisible, setIsVisible] = useState(true);
     const [deadlineType, setDeadlineType] = useState<DeadlineType | "">("");
     const [priority, setPriority] = useState<"High" | "Medium" | "Low" | "">("");
     const [description, setDescription] = useState("");
     const [deadline, setDeadline] = useState("");
-    const [courseValueId, setCourseValueId] = useState<number | "">("");
     const [bellClicked, setBellClicked] = useState(false);
 
+    // Close handler with cleanup
     const handleClose = () => {
         setIsVisible(false);
         if (onClose) onClose();
     };
 
     const handleCreateDeadline = async () => {
-        if (!deadlineType || !priority || !description || !deadline || !courseValueId) {
+        if (!deadlineType || !priority || !description || !deadline) {
             alert("Please fill all the fields.");
             return;
         }
@@ -43,18 +43,14 @@ const DeadlinePopUp: React.FC<DeadlinePopUpProps> = ({ onClose }) => {
             priority,
             description,
             deadline: parsedDeadline,
-            courseValueId: Number(courseValueId),
+            courseValueId: courseValueId, // Use the prop here
         };
-        console.log(deadlineRequest);
 
         try {
             const response = await api.createDeadline(deadlineRequest);
-            console.log("API Response:", response);
             alert("Deadline created successfully!");
-
             handleClose();
         } catch (error: any) {
-            console.error("Error creating deadline:", error.response?.data || error.message);
             alert(`Failed to create deadline: ${error.response?.data?.message || error.message}`);
         }
     };
@@ -67,7 +63,7 @@ const DeadlinePopUp: React.FC<DeadlinePopUpProps> = ({ onClose }) => {
         setBellClicked(!bellClicked);
         try {
             const api = new Api();
-            await api.updateDeadlineAlert("some-deadline-id", !bellClicked);
+            await api.updateDeadlineAlert(courseValueId, !bellClicked); // Pass courseValueId
             alert(bellClicked ? "Deadline alert deactivated" : "Deadline alert activated");
         } catch (error: any) {
             console.error("Error updating deadline alert:", error.response?.data || error.message);
@@ -75,11 +71,22 @@ const DeadlinePopUp: React.FC<DeadlinePopUpProps> = ({ onClose }) => {
         }
     };
 
+    useEffect(() => {
+        // Reset state when popup closes
+        if (!isVisible) {
+            setDeadlineType("");
+            setPriority("");
+            setDescription("");
+            setDeadline("");
+            setBellClicked(false);
+        }
+    }, [isVisible]);
+
     if (!isVisible) return null;
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="relative w-96 bg-white shadow-2xl rounded-lg p-4" >
+            <div className="relative w-96 bg-white shadow-2xl rounded-lg p-4">
                 <div className="absolute top-1/2 left-0 transform -translate-y-1/2 -translate-x-4 w-8 h-8 bg-white bg-opacity-50 rotate-45"></div>
                 <button
                     className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition duration-300"
@@ -127,7 +134,7 @@ const DeadlinePopUp: React.FC<DeadlinePopUpProps> = ({ onClose }) => {
                 </div>
 
                 <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2" >
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
                         Priority
                     </label>
                     <select
@@ -144,7 +151,7 @@ const DeadlinePopUp: React.FC<DeadlinePopUpProps> = ({ onClose }) => {
                 </div>
 
                 <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2" >
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
                         Description
                     </label>
                     <input
@@ -158,7 +165,7 @@ const DeadlinePopUp: React.FC<DeadlinePopUpProps> = ({ onClose }) => {
                 </div>
 
                 <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-medium mb-2" >
+                    <label className="block text-gray-700 text-sm font-medium mb-2">
                         Deadline
                     </label>
                     <input
@@ -166,20 +173,6 @@ const DeadlinePopUp: React.FC<DeadlinePopUpProps> = ({ onClose }) => {
                         id="deadline"
                         value={deadline}
                         onChange={(e) => setDeadline(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none shadow-sm"
-                    />
-                </div>
-
-                <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-boldm mb-2" >
-                        Course Value ID
-                    </label>
-                    <input
-                        type="number"
-                        id="courseValueId"
-                        placeholder="Enter course ID"
-                        value={courseValueId}
-                        onChange={(e) => setCourseValueId(e.target.value ? Number(e.target.value) : "")}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none shadow-sm"
                     />
                 </div>

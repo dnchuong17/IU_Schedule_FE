@@ -256,8 +256,12 @@ const ScheduleView: React.FC = () => {
             </div>
         )}
         {activePopup && activePopup.type === "deadline" && (
-            <DeadlinePopUp onClose={() => setActivePopup(null)} />
+            <DeadlinePopUp
+                onClose={() => setActivePopup(null)}
+                courseValueId={activePopup.course.course_value_id} // Pass course_value_id here
+            />
         )}
+
         {activePopup && activePopup.type === "note" && popupPosition && (
             <div
                 className="absolute bg-gradient-to-br from-white via-gray-100 to-gray-200 p-6 rounded-xl shadow-2xl"
