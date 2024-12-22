@@ -36,6 +36,19 @@ type ScheduleEntry = {
   course_value_id: number;  // Assuming this is added to the course data
 };
 
+type Deadline = {
+  UID: number;
+  is_Active: boolean;
+  priority: string;
+  description: string;
+  deadline: string;
+  courseValueId: number;
+  deadline_type: string;
+  userId: number | null;
+};
+
+
+
 const ScheduleView: React.FC = () => {
   const [scheduleData, setScheduleData] = useState<ScheduleEntry[]>([]);
   const [loading, setLoading] = useState(false);
@@ -43,6 +56,14 @@ const ScheduleView: React.FC = () => {
   const [customEvents, setCustomEvents] = useState<{ [key: string]: string }>(
       {}
   );
+
+  const [hoveredDeadline, setHoveredDeadline] = useState<Deadline[] | null>(
+      null
+  );
+  const [hoverPosition, setHoverPosition] = useState<{ x: number; y: number }>(
+      { x: 0, y: 0 }
+  );
+
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(
       !!localStorage.getItem("user_id")
   );
@@ -128,6 +149,21 @@ const ScheduleView: React.FC = () => {
     );
   };
 
+  const handleHover = async (entry: ScheduleEntry, e: React.MouseEvent) => {
+    setHoverPosition({ x: e.pageX, y: e.pageY });
+    try {
+      const response = await api.getDeadline(entry.course_value_id);
+      setHoveredDeadline(response.deadlines);
+    } catch {
+      toast.error("Failed to load deadlines!", { autoClose: 2000 });
+    }
+  };
+
+  const handleHoverOut = () => {
+    setHoveredDeadline(null);
+  };
+
+
   const handleCourseClick = (entry: ScheduleEntry) => {
     setActivePopup({ type: null, course: entry });
   };
@@ -191,6 +227,9 @@ const ScheduleView: React.FC = () => {
                                         className="p-2 border bg-yellow-100 text-sm font-medium text-gray-800 cursor-pointer"
                                         style={{ gridRow: `span ${entry.periods}` }}
                                         onClick={() => handleCourseClick(entry)}
+                                        onMouseEnter={(e) => handleHover(entry, e)}
+                                        onMouseLeave={handleHoverOut}
+
                                     >
                                       <strong>{entry.course_name}</strong>
                                       <br />
@@ -217,11 +256,32 @@ const ScheduleView: React.FC = () => {
                             })}
                           </React.Fragment>
                       ))}
+
                     </div>
                   </div>
               )}
             </div>
         )}
+
+        {hoveredDeadline && (
+            <div
+                className="absolute bg-white shadow-lg p-4 rounded border text-left"
+                style={{
+                  top: hoverPosition.y + 10,
+                  left: hoverPosition.x + 10,
+                }}
+            >
+              <h3 className="font-bold text-blue-600">Deadlines</h3>
+              <ul>
+                {hoveredDeadline.map((deadline) => (
+                    <li key={deadline.UID} className="text-sm">
+                      {deadline.description} - {new Date(deadline.deadline).toLocaleString()}
+                    </li>
+                ))}
+              </ul>
+            </div>
+        )}
+
         {activePopup && activePopup.type === "deadline" && (
             <DeadlinePopUp onClose={() => setActivePopup(null)} />
         )}

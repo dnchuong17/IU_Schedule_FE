@@ -184,6 +184,17 @@ export class Api {
     }
   }
 
+  async getDeadline(courseValueId: number) {
+    try {
+      const response = await this.axiosObject.get(`/deadline/by-course-value/${courseValueId}`);
+      console.log("Get deadline successfully: ", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching deadlines: ", error);
+      throw error;
+    }
+  }
+
 }
 
 
