@@ -11,7 +11,9 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-    }
-  },
+      "@/*": ["./src/*"]
+    },
+    "target": "es2021",
+    "lib": ["es2021"]
+  }
 }

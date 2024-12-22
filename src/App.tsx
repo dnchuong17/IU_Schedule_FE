@@ -1,17 +1,17 @@
-import WorkflowList from "./pages/WorkflowList"
-import DeadlinePopUp from "./components/Schedule/DeadlinePopUp"
-import NotePopUp from "./components/Schedule/NotePopUp"
-import NotificationPopUp from "./components/Schedule/NotificationPopUp"
-import Login from "./components/Login_Register/login.tsx"
-import Register from "./components/Login_Register/register.tsx"
-import Filters from "./components/Timetable/Filters.tsx"
-import ScheduleView from "./components/Schedule/ScheduleView"
-import Footer from "@/components/HomePage/footer.tsx"
-import Header from "@/components/HomePage/header.tsx"
-import { BrowserRouter as Router } from "react-router-dom"
-import { Route, Routes, Outlet, Navigate } from "react-router-dom"
+import WorkflowList from "./pages/WorkflowList";
+import DeadlinePopUp from "./components/Schedule/DeadlinePopUp";
+import NotePopUp from "./components/Schedule/NotePopUp";
+import NotificationPopUp from "./components/Schedule/NotificationPopUp";
+import Login from "./components/Login_Register/login.tsx";
+import Register from "./components/Login_Register/register.tsx";
+import Filters from "./components/Timetable/Filters.tsx";
+import ScheduleView from "./components/Schedule/ScheduleView";
+// import Footer from "./components/HomePage/footer.tsx";
+import Header from "./components/HomePage/header.tsx";
+import { BrowserRouter as Router } from "react-router-dom";
+import { Route, Routes, Outlet, Navigate } from "react-router-dom";
+import Schedule from "./pages/Schedule.tsx";
 import Navbar from "../src/components/HomePage/navbar.tsx"
-
 
 // Layout component that includes Header and Footer
 const DefaultLayout = () => {
@@ -20,88 +20,54 @@ const DefaultLayout = () => {
         <Navbar />
       <Header />
       <Outlet />
-      <Footer />
+      {/* <Footer /> */}
     </>
-  )
-}
+  );
+};
 
 const NotFound = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <h1 className="text-4xl font-bold mb-4">404 - Page Not Found</h1>
       <p className="mb-4">The page you're looking for doesn't exist.</p>
-      <a
-        href="/"
-        className="text-blue-500 hover:text-blue-700"
-      >
+      <a href="/" className="text-blue-500 hover:text-blue-700">
         Go back to home
       </a>
     </div>
-  )
-}
+  );
+};
 
 function App() {
-
-
-
+  const handleLoginSuccess = () => {
+    console.log("Login successful");
+  };
   return (
     <Router>
       <Routes>
-        <Route
-          path="/admin/WorkflowList"
-          element={<WorkflowList />}
-        />
+        <Route path="/admin/WorkflowList" element={<WorkflowList />} />
 
 
         <Route element={<DefaultLayout />}>
-          <Route
-            path="/scheduleView"
-            element={
-              <Navigate
-                to="/scheduleView"
-                replace
-              />
-            }
-          />
+          <Route path="/" element={<Navigate to="/scheduleView" replace />} />
+
+          <Route path="/deadlinePopUp" element={<DeadlinePopUp />} />
+          <Route path="/notePopUp" element={<NotePopUp />} />
+          <Route path="/notificationPopUp" element={<NotificationPopUp />} />
 
           <Route
-            path="/deadlinePopUp"
-            element={<DeadlinePopUp />}
+            path="/login"
+            element={<Login onLoginSuccess={handleLoginSuccess} />}
           />
-          <Route
-            path="/notePopUp"
-            element={<NotePopUp />}
-          />
-          <Route
-            path="/notificationPopUp"
-            element={<NotificationPopUp />}
-          />
+          <Route path="/register" element={<Register />} />
+          <Route path="/scheduleView" element={<ScheduleView />} />
+          <Route path="/filters" element={<Filters />} />
 
-            <Route path="/login" element={<Login />} />
-
-            <Route
-            path="/register"
-            element={<Register />}
-          />
-          <Route
-            path="/scheduleView"
-            element={<ScheduleView />}
-          />
-          <Route
-            path="/"
-            element={<Filters />}
-          />
-
-          <Route
-            path="*"
-            element={<NotFound />}
-          />
-
-
+          <Route path="*" element={<NotFound />} />
+          <Route path="/schedule" element={<Schedule />} />
         </Route>
       </Routes>
     </Router>
-  )
+  );
 }
 
-export default App
+export default App;
