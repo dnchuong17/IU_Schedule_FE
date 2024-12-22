@@ -6,11 +6,11 @@ import Login from "./components/Login_Register/login.tsx";
 import Register from "./components/Login_Register/register.tsx";
 import Filters from "./components/Timetable/Filters.tsx";
 import ScheduleView from "./components/Schedule/ScheduleView";
-import Footer from "./components/Header_Footer/footer.tsx";
+// import Footer from "./components/Header_Footer/footer.tsx";
 import Header from "./components/Header_Footer/header.tsx";
 import { BrowserRouter as Router } from "react-router-dom";
 import { Route, Routes, Outlet, Navigate } from "react-router-dom";
-import Schedule from "./pages/Schedule.tsx";
+// import Schedule from "./pages/Schedule.tsx";
 import Timetable from "../src/pages/TimeTable.tsx"
 // Layout component that includes Header and Footer
 const DefaultLayout = () => {
