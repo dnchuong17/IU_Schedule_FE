@@ -29,16 +29,16 @@ const Timetable: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [customEvents, setCustomEvents] = useState<{ [key: string]: string }>({});
-    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(!!localStorage.getItem("user_id"));
+   const [isLoggedIn] = useState<boolean>(!!localStorage.getItem("user_id"));
 
     const api = new Api();
 
-    const handleLoginSuccess = () => {
+/*    const handleLoginSuccess = () => {
         setIsLoggedIn(true);
         fetchTemplate();
         toast.success("Login successful!", { autoClose: 3000 });
     };
-
+*/
     useEffect(() => {
         if (isLoggedIn) fetchTemplate();
     }, [isLoggedIn]);
