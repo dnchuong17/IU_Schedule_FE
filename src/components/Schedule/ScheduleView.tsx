@@ -60,9 +60,6 @@ const ScheduleView: React.FC = () => {
   const [hoveredDeadline, setHoveredDeadline] = useState<Deadline[] | null>(
       null
   );
-  const [hoverPosition, setHoverPosition] = useState<{ x: number; y: number }>(
-      { x: 0, y: 0 }
-  );
 
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(
       !!localStorage.getItem("user_id")
@@ -70,6 +67,9 @@ const ScheduleView: React.FC = () => {
   const [activePopup, setActivePopup] = useState<
       { type: "deadline" | "note" | null; course: ScheduleEntry } | null
   >(null);
+
+  const [popupPosition, setPopupPosition] = useState<{ top: number; left: number } | null>(null);
+
 
   const api = new Api();
 
@@ -149,24 +149,21 @@ const ScheduleView: React.FC = () => {
     );
   };
 
-  const handleHover = async (entry: ScheduleEntry, e: React.MouseEvent) => {
-    setHoverPosition({ x: e.pageX, y: e.pageY });
-    try {
-      const response = await api.getDeadline(entry.course_value_id);
-      setHoveredDeadline(response.deadlines);
-    } catch {
-      toast.error("Failed to load deadlines!", { autoClose: 2000 });
-    }
-  };
-
-  const handleHoverOut = () => {
-    setHoveredDeadline(null);
-  };
-
-
-  const handleCourseClick = (entry: ScheduleEntry) => {
+  const handleCourseClick = (entry: ScheduleEntry, event: React.MouseEvent) => {
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
+    setPopupPosition({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX });
     setActivePopup({ type: null, course: entry });
   };
+
+  const handleOpenNotePopUp = () => {
+    setActivePopup((prev) => (prev ? { ...prev, type: "note" } : null));
+  };
+
+  const handleOpenDeadlinePopUp = () => {
+    setActivePopup((prev) => (prev ? { ...prev, type: "deadline" } : null));
+  };
+
+
 
   const handleAddEvent = (day: string, rowIndex: number) => {
     toast.info(`You don't have any classes during this time.`);
@@ -226,10 +223,7 @@ const ScheduleView: React.FC = () => {
                                         key={`${rowIndex}-${colIndex}`}
                                         className="p-2 border bg-yellow-100 text-sm font-medium text-gray-800 cursor-pointer"
                                         style={{ gridRow: `span ${entry.periods}` }}
-                                        onClick={() => handleCourseClick(entry)}
-                                        onMouseEnter={(e) => handleHover(entry, e)}
-                                        onMouseLeave={handleHoverOut}
-
+                                        onClick={(event) => handleCourseClick(entry, event)}
                                     >
                                       <strong>{entry.course_name}</strong>
                                       <br />
@@ -256,73 +250,62 @@ const ScheduleView: React.FC = () => {
                             })}
                           </React.Fragment>
                       ))}
-
                     </div>
                   </div>
               )}
             </div>
         )}
-
-        {hoveredDeadline && (
-            <div
-                className="absolute bg-white shadow-lg p-4 rounded border text-left"
-                style={{
-                  top: hoverPosition.y + 10,
-                  left: hoverPosition.x + 10,
-                }}
-            >
-              <h3 className="font-bold text-blue-600">Deadlines</h3>
-              <ul>
-                {hoveredDeadline.map((deadline) => (
-                    <li key={deadline.UID} className="text-sm">
-                      {deadline.description} - {new Date(deadline.deadline).toLocaleString()}
-                    </li>
-                ))}
-              </ul>
-            </div>
-        )}
-
         {activePopup && activePopup.type === "deadline" && (
             <DeadlinePopUp onClose={() => setActivePopup(null)} />
         )}
-        {activePopup && activePopup.type === "note" && (
-            <NotePopUp
-                courseValueId={activePopup.course.course_value_id} // Pass the course_value_id
-                onClose={() => setActivePopup(null)}
-            />
+        {activePopup && activePopup.type === "note" && popupPosition && (
+            <div
+                className="absolute bg-gradient-to-br from-white via-gray-100 to-gray-200 p-6 rounded-xl shadow-2xl"
+                style={{
+                  top: popupPosition.top,
+                  left: popupPosition.left,
+                }}
+            >
+              <NotePopUp
+                  courseValueId={activePopup.course.course_value_id}
+                  onClose={() => setActivePopup(null)}
+              />
+            </div>
         )}
 
-        {activePopup && activePopup.type === null && (
-            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-              <div className="bg-gradient-to-br from-white via-gray-100 to-gray-200 p-6 rounded-xl shadow-2xl w-96">
-                <p className="text-xl font-semibold text-gray-700 mb-4 text-center">
-                  Add to Course:
-                </p>
-                <div className="mt-4 flex justify-around space-x-4">
-                  <button
-                      className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-full shadow-lg transform transition-transform duration-200 hover:scale-105 hover:shadow-xl"
-                      onClick={() =>
-                          setActivePopup((prev) =>
-                              prev ? { ...prev, type: "note" } : null
-                          )
-                      }
-                  >
-                    Note
-                  </button>
-                  <button
-                      className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-full shadow-lg transform transition-transform duration-200 hover:scale-105 hover:shadow-xl"
-                      onClick={() =>
-                          setActivePopup((prev) =>
-                              prev ? { ...prev, type: "deadline" } : null
-                          )
-                      }
-                  >
-                    Deadline
-                  </button>
-                </div>
+
+        {activePopup && activePopup.type === null && popupPosition && (
+            <div
+                className="absolute bg-gradient-to-br from-white via-gray-100 to-gray-200 p-6 rounded-xl shadow-2xl"
+                style={{
+                  top: popupPosition.top,
+                  left: popupPosition.left,
+                }}
+            >
+              <p className="text-xl font-semibold text-gray-700 mb-4 text-center">
+                Add to Course:
+              </p>
+              <div className="mt-4 flex justify-around space-x-4">
+                <button
+                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-full shadow-lg transform transition-transform duration-200 hover:scale-105 hover:shadow-xl"
+                    onClick={() =>
+                        setActivePopup((prev) => (prev ? { ...prev, type: "note" } : null))
+                    }
+                >
+                  Note
+                </button>
+                <button
+                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-full shadow-lg transform transition-transform duration-200 hover:scale-105 hover:shadow-xl"
+                    onClick={() =>
+                        setActivePopup((prev) => (prev ? { ...prev, type: "deadline" } : null))
+                    }
+                >
+                  Deadline
+                </button>
               </div>
             </div>
         )}
+
       </div>
   );
 };
