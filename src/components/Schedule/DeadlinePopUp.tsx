@@ -62,15 +62,21 @@ const DeadlinePopUp: React.FC<DeadlinePopUpProps> = ({ onClose, courseValueId })
 
     const handleBellClick = async () => {
         setBellClicked(!bellClicked);
+
         try {
             const api = new Api();
-            await api.updateDeadlineAlert(courseValueId, !bellClicked);
+
+            // Ensure courseValueId is a string before passing it to the API
+            const courseIdStr = courseValueId ? courseValueId.toString() : ""; // Default to empty string if undefined
+
+            await api.updateDeadlineAlert(courseIdStr, !bellClicked);
             alert(bellClicked ? "Deadline alert deactivated" : "Deadline alert activated");
         } catch (error: any) {
             console.error("Error updating deadline alert:", error);
             alert(`Failed to update deadline alert: ${error.response?.data?.message || error.message}`);
         }
     };
+
 
     useEffect(() => {
         // Reset state when popup closes
