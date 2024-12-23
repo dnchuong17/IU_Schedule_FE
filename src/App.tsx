@@ -1,6 +1,5 @@
 import WorkflowList from "./pages/WorkflowList";
 import DeadlinePopUp from "./components/Schedule/DeadlinePopUp";
-import NotePopUp from "./components/Schedule/NotePopUp";
 import NotificationPopUp from "./components/Schedule/NotificationPopUp";
 import Login from "./components/Login_Register/login.tsx";
 import Register from "./components/Login_Register/register.tsx";
@@ -12,6 +11,7 @@ import { BrowserRouter as Router } from "react-router-dom";
 import { Route, Routes, Outlet, Navigate } from "react-router-dom";
 import Schedule from "./pages/Schedule.tsx";
 import Navbar from "../src/components/HomePage/navbar.tsx"
+
 
 // Layout component that includes Header and Footer
 const DefaultLayout = () => {
@@ -37,6 +37,7 @@ const NotFound = () => {
   );
 };
 
+
 function App() {
   return (
     <Router>
@@ -48,7 +49,6 @@ function App() {
           <Route path="/" element={<Navigate to="/scheduleView" replace />} />
 
           <Route path="/deadlinePopUp" element={<DeadlinePopUp />} />
-          <Route path="/notePopUp" element={<NotePopUp />} />
           <Route path="/notificationPopUp" element={<NotificationPopUp />} />
 
           <Route
