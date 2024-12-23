@@ -10,6 +10,7 @@ import { faBookmark } from "@fortawesome/free-solid-svg-icons";
 import { Api } from "../../utils/api.ts";
 import { toast } from "react-toastify";
 import { scheduleRequest } from "../../utils/request/scheduleRequest";
+
 interface ScheduleTableProps {
   completeSchedule: CompleteSchedule;
   center: boolean;
@@ -17,8 +18,6 @@ interface ScheduleTableProps {
 
 const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
   const rowsProps: CellProps[][] = populateSchedule(completeSchedule);
-
-  // src/components/Schedule/ScheduleTable.tsx
 
   const handleSave = async () => {
     const api = new Api();
@@ -34,13 +33,34 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
       const { classObject } = classObj;
       const { courseID, courseName, credits, date, startPeriod, periodsCount, location, lecturer, isActive } = classObject;
 
-      // Create an array of courses with all necessary fields
-      return date.map((day, index) => ({
-        id: `${courseID}${classObj.classID}_${index + 1}`,
+      // Ensure credits is a number
+      const creditsValue = Number(credits);  // Convert credits to a number if it's a string
+
+      // Handle case if credits is NaN (in case of invalid conversion)
+      if (isNaN(creditsValue)) {
+        console.warn(`Invalid credits value for course ${courseID}: ${credits}`);
+        return [];  // Skip this course if credits is invalid
+      }
+
+      // Map English days to Vietnamese days
+      const dayMapping: { [key: string]: string } = {
+        Mon: "Thứ Hai",
+        Tue: "Thứ Ba",
+        Wed: "Thứ Tư",
+        Thu: "Thứ Năm",
+        Fri: "Thứ Sáu",
+        Sat: "Thứ Bảy",
+        Sun: "Chủ Nhật",
+      };
+
+      // Map the dates to Vietnamese weekdays
+      const vietnameseDates = date.map((day) => dayMapping[day] || day); // Translate dates to Vietnamese
+
+      return vietnameseDates.map((day, index) => ({
         courseID: courseID,
         courseName: courseName,
-        credits: credits.toString(),
-        date: [day],  // Wrap day into an array
+        credits: creditsValue,  // Use number for credits
+        date: [day],  // Wrap the day into an array
         startPeriod: [startPeriod[index]],  // Wrap startPeriod into an array
         periodsCount: [periodsCount[index]],  // Wrap periodsCount into an array
         location: [location[index]],  // Wrap location into an array
@@ -54,7 +74,7 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
 
     const payload: scheduleRequest = {
       studentId: studentId,
-      templateId: null,
+      templateId: null,  // Ensure templateId is not null unless allowed by type
       listOfCourses,
     };
 
@@ -70,9 +90,6 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
         console.log("Received templateId:", newTemplateId);
         // Store in localStorage as a string
         localStorage.setItem("templateId", newTemplateId.toString());
-
-        // Navigate or perform other actions if needed
-        // history.push(`/schedule/${newTemplateId}`);
 
         // Inform the user
         toast.success(
@@ -94,6 +111,8 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
       );
     }
   };
+
+
   const rows = rowsProps.map((cellsProps, index) => (
       <Row cellsProps={cellsProps} key={index}></Row>
   ));
@@ -146,14 +165,31 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
 function populateSchedule(completeSchedule: CompleteSchedule) {
   const rowsProps: CellProps[][] = initTable();
 
+  // Map English days to Vietnamese days
+  const dayMapping: { [key: string]: string } = {
+    Mon: "Thứ Hai",
+    Tue: "Thứ Ba",
+    Wed: "Thứ Tư",
+    Thu: "Thứ Năm",
+    Fri: "Thứ Sáu",
+    Sat: "Thứ Bảy",
+    Sun: "Chủ Nhật",
+  };
+
   for (const { classObject, color } of completeSchedule) {
-    const { courseName, startPeriod, periodsCount, location, lecturer } =
-        classObject;
+    const { courseName, startPeriod, periodsCount, location, lecturer } = classObject;
     const dates = _extractDates(classObject); // use dates array to know if we need 1 or 2 rows.
 
     dates.forEach((date, index) => {
-      for (let row = 0; row < periodsCount[index]; row++) {
-        const oldCellProps = rowsProps[startPeriod[index] - 1 + row][date + 1];
+      // Convert the English date to Vietnamese date using dayMapping
+      const vietnameseDate = dayMapping[date] || date;
+
+      // Ensure startPeriod[index] and periodsCount[index] are numbers
+      const startPeriodValue = Number(startPeriod[index]);
+      const periodsCountValue = Number(periodsCount[index]);
+
+      for (let row = 0; row < periodsCountValue; row++) {
+        const oldCellProps = rowsProps[startPeriodValue - 1 + row][date + 1];
         let newCellProps: CellProps;
         if (row == 0) {
           // Edit top cell and set rowSpan
@@ -170,7 +206,7 @@ function populateSchedule(completeSchedule: CompleteSchedule) {
           newCellProps = {
             children: cellContent,
             className: `px-1.5 ${color}`,
-            rowSpan: periodsCount[index],
+            rowSpan: periodsCountValue,
           };
         } else {
           // Hide all bottom cells to top cell to span downwards
@@ -179,13 +215,15 @@ function populateSchedule(completeSchedule: CompleteSchedule) {
             className: "hidden",
           };
         }
-        rowsProps[startPeriod[index] - 1 + row][date + 1] = newCellProps;
+        // @ts-ignore
+        rowsProps[startPeriodValue - 1 + row][vietnameseDate + 1] = newCellProps;
       }
     });
   }
 
   return rowsProps;
 }
+
 
 function initTable() {
   const rowsProps: CellProps[][] = [];
