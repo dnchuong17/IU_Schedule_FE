@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import CourseTable from "../components/Timetable/CourseTable";
 import ScheduleTables from "../components/Schedule/ScheduleTables.tsx";
 import { CoursesMap } from "../lib/classInput.ts";
+
 const Schedule: React.FC = () => {
   const [coursesMap, setCoursesMap] = useState<CoursesMap>(new Map());
 
@@ -11,7 +12,7 @@ const Schedule: React.FC = () => {
   };
 
   return (
-    <div className="schedule-container">
+    <div className="schedule-container flex flex-col gap-8">
       <CourseTable
         coursesMap={coursesMap}
         setCoursesMap={setCoursesMap}
