@@ -159,9 +159,9 @@ export class Api {
   async updateNote(content: string, courseValueId: number) {
     try {
       const response = await this.axiosObject.patch("/note/update", {
-        content, courseValueId
+        content, courseValueId,
       });
-      console.log("Update note successfull: ", response.data);
+      console.log("Update note successfully: ", response.data);
       return response.data;
     } catch (error) {
       console.log("Error updating note: ", error);

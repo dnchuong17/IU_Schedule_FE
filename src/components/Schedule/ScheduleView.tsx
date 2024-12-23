@@ -67,6 +67,13 @@ const ScheduleView: React.FC = () => {
       { type: "deadline" | "note" | null; course: ScheduleEntry } | null
   >(null);
 
+  const [popupData, setPopupData] = useState<{
+    position: { top: number; left: number } | null;
+    deadlines: Deadline[] | null;
+  } | null>(null);
+
+
+
   const [popupPosition, setPopupPosition] = useState<{ top: number; left: number } | null>(null);
 
 
@@ -168,6 +175,31 @@ const ScheduleView: React.FC = () => {
     return today === 0 ? 6 : today - 1;
   };
 
+
+  //Hover to show deadline
+
+  const fetchAndShowDeadlines = async (entry: ScheduleEntry, event: React.MouseEvent) => {
+    try {
+      const rect = (event.target as HTMLElement).getBoundingClientRect();
+      const response = await api.getDeadline(entry.course_value_id);
+      setPopupData({
+        position: { top: rect.bottom + window.scrollY, left: rect.left + window.scrollX },
+        deadlines: response?.deadlines || [],
+      });
+    } catch (error) {
+      toast.error("Failed to fetch deadlines for this course!", {
+        autoClose: 3000,
+      });
+      setPopupData(null);
+    }
+  };
+
+  const hidePopup = () => {
+    setPopupData(null);
+  };
+
+
+
   return (
       <div className="text-center font-sans p-6">
         <ToastContainer />
@@ -213,13 +245,17 @@ const ScheduleView: React.FC = () => {
                                     <div
                                         key={`${rowIndex}-${colIndex}`}
                                         className="p-2 border bg-yellow-100 text-sm font-medium text-gray-800 cursor-pointer"
-                                        style={{ gridRow: `span ${entry.periods}` }}
-                                        onClick={(event) => handleCourseClick(entry, event)}
+                                        style={{gridRow: `span ${entry.periods}`}}
+                                        onMouseEnter={(event) =>
+                                            fetchAndShowDeadlines(entry, event)
+                                        }
+                                        onMouseLeave={hidePopup}
                                     >
                                       <strong>{entry.course_name}</strong>
-                                      <br />
+                                      <br/>
                                       <em>Room: {entry.location}</em>
                                     </div>
+
                                 );
                               }
 
@@ -238,6 +274,8 @@ const ScheduleView: React.FC = () => {
                                     )}
                                   </div>
                               );
+
+
                             })}
                           </React.Fragment>
                       ))}
@@ -245,6 +283,22 @@ const ScheduleView: React.FC = () => {
                   </div>
               )}
             </div>
+
+        {hoveredDeadline && (
+            <div className="absolute bg-white p-4 rounded shadow-lg border">
+              <h3 className="text-lg font-bold mb-2">Deadlines</h3>
+              <ul>
+                {hoveredDeadline.map((deadline) => (
+                    <li key={deadline.UID} className="mb-1">
+                      <strong>{deadline.deadline_type}:</strong> {deadline.description} <br />
+                      <em>Due: {new Date(deadline.deadline).toLocaleString()}</em>
+                    </li>
+                ))}
+              </ul>
+            </div>
+        )}
+
+
         {activePopup && activePopup.type === "deadline" && (
             <DeadlinePopUp
                 onClose={() => setActivePopup(null)}
@@ -266,6 +320,31 @@ const ScheduleView: React.FC = () => {
               />
             </div>
         )}
+
+        {popupData && popupData.position && (
+            <div
+                className="absolute bg-white p-4 rounded shadow-lg border"
+                style={{
+                  top: popupData.position.top,
+                  left: popupData.position.left,
+                }}
+            >
+              <h3 className="text-lg font-bold mb-2">Deadlines</h3>
+              {popupData.deadlines.length > 0 ? (
+                  <ul>
+                    {popupData.deadlines.map((deadline) => (
+                        <li key={deadline.UID} className="mb-1">
+                          <strong>{deadline.deadline_type}:</strong> {deadline.description} <br />
+                          <em>Due: {new Date(deadline.deadline).toLocaleString()}</em>
+                        </li>
+                    ))}
+                  </ul>
+              ) : (
+                  <p className="text-gray-500">No deadlines found.</p>
+              )}
+            </div>
+        )}
+
 
 
         {activePopup && activePopup.type === null && popupPosition && (

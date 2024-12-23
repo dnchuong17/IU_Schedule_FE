@@ -1,25 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { AiOutlineClose } from 'react-icons/ai';
-import { Api } from '../../utils/api.ts'; // Import the API class
+import { Api } from '../../utils/api.ts';
 
 interface NotePopUpProps {
     onClose?: () => void;
-    courseValueId?: number;  // Ensure this is required or optional as per your needs
-    existingNote?: string;  // Optional prop to pass existing note content
+    courseValueId: number; // Mandatory for linking note updates
+    existingNote?: { id: number; content: string }; // Pass the note ID and content for updates
 }
 
 const NotePopUp: React.FC<NotePopUpProps> = ({ onClose, courseValueId, existingNote }) => {
     const [isVisible, setIsVisible] = useState<boolean>(true);
-    const [content, setContent] = useState<string>(''); // Note content
-    const [loading, setLoading] = useState<boolean>(false); // Loading spinner state
-    const [error, setError] = useState<string>(''); // Error message state
+    const [content, setContent] = useState<string>(existingNote?.content || ''); // Preload existing note content
+    const [loading, setLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string>('');
 
     const api = new Api();
 
-    // Populate content if an existing note is provided
     useEffect(() => {
-        if (existingNote) {
-            setContent(existingNote);
+        // Preload existing note content on mount
+        if (existingNote?.content) {
+            setContent(existingNote.content);
         }
     }, [existingNote]);
 
@@ -35,19 +35,19 @@ const NotePopUp: React.FC<NotePopUpProps> = ({ onClose, courseValueId, existingN
         }
 
         setLoading(true);
-        setError(''); // Reset error state before making API call
+        setError('');
 
         try {
             if (existingNote) {
                 // Update existing note
-                const response = await api.updateNote(content, courseValueId);  // Pass courseValueId here
+                const response = await api.updateNote(content, courseValueId);
                 console.log('Note updated successfully:', response.message);
             } else {
-                // Create a new note
-                const response = await api.createNote(content, courseValueId);  // Pass courseValueId here
+                // Create a new note (if no existing note provided)
+                const response = await api.createNote(content, courseValueId);
                 console.log('Note created successfully:', response.message);
             }
-            handleClose(); // Close popup after successful operation
+            handleClose(); // Close popup on success
         } catch (err) {
             setError('Failed to save the note. Please try again.');
             console.error(err);
@@ -71,7 +71,7 @@ const NotePopUp: React.FC<NotePopUpProps> = ({ onClose, courseValueId, existingN
 
                 {/* Title */}
                 <h2 className="text-2xl font-semibold text-blue-600 mb-4 text-center">
-                    {existingNote ? 'Edit Note' : 'Create a Note'}
+                    {existingNote ? 'Edit Note' : 'Create Note'}
                 </h2>
 
                 {/* Note Input */}
