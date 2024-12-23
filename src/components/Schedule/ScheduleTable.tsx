@@ -28,6 +28,12 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
     const api = new Api();
     const studentId = localStorage.getItem("student_id") || undefined;
 
+    if (!studentId) {
+      toast.warn("Please login to save your schedule.", { autoClose: 3000 });
+      setIsLoginOpen(true);
+      return;
+    }
+
     // Add debugging logs to verify classObject structure
     completeSchedule.forEach((classObj, index) => {
       console.log(`Class ${index} - classObject:`, classObj.classObject);
@@ -36,17 +42,7 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
     // Map the courses to the required format
     const listOfCourses = completeSchedule.flatMap((classObj) => {
       const { classObject } = classObj;
-      const {
-        courseID,
-        courseName,
-        credits,
-        date,
-        startPeriod,
-        periodsCount,
-        location,
-        lecturer,
-        isActive,
-      } = classObject;
+      const { courseID, courseName, credits, date, startPeriod, periodsCount, location, lecturer, isActive } = classObject;
 
       // Ensure credits is a number
       const creditsValue = Number(credits);  // Convert credits to a number if it's a string
@@ -88,8 +84,8 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
     console.log("List of Courses to be sent:", listOfCourses);
 
     const payload: scheduleRequest = {
-      studentId,
-      templateId: null,
+      studentId: studentId,
+      templateId: null,  // Ensure templateId is not null unless allowed by type
       listOfCourses,
     };
 
@@ -134,21 +130,6 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
 
   return (
 
-      <div>
-        <div className="flex justify-end gap-4 p-4">
-          <button
-              onClick={() => setIsLoginOpen(true)}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
-            Login
-          </button>
-          <button
-              onClick={() => setIsRegisterOpen(true)}
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-          >
-            Register
-          </button>
-        </div>
 
 
         <div
@@ -191,7 +172,6 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
           >
             <FontAwesomeIcon icon={faBookmark}/> Save Schedule
           </button>
-        </div>
 
         {/* Render Login Modal */}
         {isLoginOpen && (
