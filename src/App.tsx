@@ -9,12 +9,10 @@ import Footer from "./components/HomePage/footer.tsx";
 // import Header from "./components/HomePage/header.tsx";
 import { BrowserRouter as Router } from "react-router-dom";
 import { Route, Routes, Outlet, Navigate } from "react-router-dom";
-import Schedule from "./pages/Schedule.tsx";
 import Navbar from "../src/components/HomePage/navbar.tsx"
+import Schedule from "./pages/Schedule.tsx";
+import Timetable from "../src/pages/TimeTable.tsx";
 
-
-// import Schedule from "./pages/Schedule.tsx";
-import Timetable from "../src/pages/TimeTable.tsx"
 // Layout component that includes Header and Footer
 const DefaultLayout = () => {
   return (
@@ -77,6 +75,8 @@ function App() {
                 path="/timeTable"
                 element={<Timetable />}
             />
+
+            <Route path="/schedule" element={<Schedule />} />
 
 
             <Route
