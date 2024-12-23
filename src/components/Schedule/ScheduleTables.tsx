@@ -76,7 +76,7 @@ const ScheduleTables = ({ coursesMap }: ScheduleTablesProps) => {
     <section className="flex w-full max-w-screen-lg flex-col gap-8 xl:grid xl:max-w-none xl:grid-cols-2">
       <div
         className="flex w-full items-center whitespace-nowrap rounded
-        py-2 px-3 text-slate-900 shadow xl:col-span-2 xl:mx-auto xl:max-w-screen-lg"
+        py-4 px-3 text-slate-900 shadow xl:col-span-2 xl:mx-auto xl:max-w-screen-lg"
       >
         <div className="flex items-center gap-2 overflow-x-auto">
           <FunnelIcon className="h-4 shrink-0 text-sky-500"></FunnelIcon>
