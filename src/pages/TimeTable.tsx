@@ -43,12 +43,6 @@ const Timetable: React.FC = () => {
 
   const api = new Api();
 
-  /*    const handleLoginSuccess = () => {
-        setIsLoggedIn(true);
-        fetchTemplate();
-        toast.success("Login successful!", { autoClose: 3000 });
-    };
-*/
   useEffect(() => {
     if (isLoggedIn) fetchTemplate();
   }, [isLoggedIn]);
