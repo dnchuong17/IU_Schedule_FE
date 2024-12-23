@@ -52,15 +52,15 @@ const ScheduleView: React.FC = () => {
   const [scheduleData, setScheduleData] = useState<ScheduleEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [customEvents, setCustomEvents] = useState<{ [key: string]: string }>(
+  const [customEvents] = useState<{ [key: string]: string }>(
       {}
   );
 
-  const [hoveredDeadline, setHoveredDeadline] = useState<Deadline[] | null>(
+  const [hoveredDeadline] = useState<Deadline[] | null>(
       null
   );
 
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(
+  const [isLoggedIn] = useState<boolean>(
       !!localStorage.getItem("user_id")
   );
   const [activePopup, setActivePopup] = useState<
@@ -71,8 +71,6 @@ const ScheduleView: React.FC = () => {
     position: { top: number; left: number } | null;
     deadlines: Deadline[] | null;
   } | null>(null);
-
-
 
   const [popupPosition, setPopupPosition] = useState<{ top: number; left: number } | null>(null);
 
@@ -204,85 +202,86 @@ const ScheduleView: React.FC = () => {
       <div className="text-center font-sans p-6">
         <ToastContainer />
 
-            <div>
-              <h1 className="text-3xl font-bold mb-4 text-blue-600">
-                Your Timetable
-              </h1>
-              {loading ? (
-                  <p className="text-blue-500 text-xl">Loading your schedule...</p>
-              ) : error ? (
-                  <p className="text-red-500 text-xl">{error}</p>
-              ) : (
-                  <div className="max-w-6xl mx-auto text-sm border p-4 shadow-lg rounded-md bg-white">
-                    <div className="grid grid-cols-8 gap-1">
-                      <div className="bg-gray-300 text-center font-bold p-2"></div>
-                      {daysOfWeek.map((day, index) => (
-                          <div
-                              key={index}
-                              className={`text-white font-bold text-center p-2 border ${
-                                  getCurrentDayIndex() === index
-                                      ? "bg-blue-700"
-                                      : "bg-blue-500"
-                              }`}
-                          >
-                            {day}
-                          </div>
-                      ))}
+        <div>
+          <h1 className="text-3xl font-bold mb-4 text-blue-600">
+            Your Timetable
+          </h1>
+          {loading ? (
+              <p className="text-blue-500 text-xl">Loading your schedule...</p>
+          ) : error ? (
+              <p className="text-red-500 text-xl">{error}</p>
+          ) : (
+              <div className="max-w-6xl mx-auto text-sm border p-4 shadow-lg rounded-md bg-white">
+                <div className="grid grid-cols-8 gap-1">
+                  <div className="bg-gray-300 text-center font-bold p-2"></div>
+                  {daysOfWeek.map((day, index) => (
+                      <div
+                          key={index}
+                          className={`text-white font-bold text-center p-2 border ${
+                              getCurrentDayIndex() === index
+                                  ? "bg-blue-700"
+                                  : "bg-blue-500"
+                          }`}
+                      >
+                        {day}
+                      </div>
+                  ))}
 
-                      {lessonSlots.map((slot, rowIndex) => (
-                          <React.Fragment key={rowIndex}>
-                            <div className="bg-gray-200 text-center font-semibold p-2 border">
-                              {slot}
-                            </div>
-                            {daysOfWeek.map((day, colIndex) => {
-                              const entry = findSubject(day, rowIndex);
-                              const isStartLesson =
-                                  entry && rowIndex + 1 === parseInt(entry.start_period);
-                              const eventKey = `${day}-${rowIndex}`;
+                  {lessonSlots.map((slot, rowIndex) => (
+                      <React.Fragment key={rowIndex}>
+                        <div className="bg-gray-200 text-center font-semibold p-2 border">
+                          {slot}
+                        </div>
+                        {daysOfWeek.map((day, colIndex) => {
+                          const entry = findSubject(day, rowIndex);
+                          const isStartLesson =
+                              entry && rowIndex + 1 === parseInt(entry.start_period);
+                          const eventKey = `${day}-${rowIndex}`;
 
-                              if (isStartLesson) {
-                                return (
-                                    <div
-                                        key={`${rowIndex}-${colIndex}`}
-                                        className="p-2 border bg-yellow-100 text-sm font-medium text-gray-800 cursor-pointer"
-                                        style={{gridRow: `span ${entry.periods}`}}
-                                        onMouseEnter={(event) =>
-                                            fetchAndShowDeadlines(entry, event)
-                                        }
-                                        onMouseLeave={hidePopup}
-                                    >
-                                      <strong>{entry.course_name}</strong>
-                                      <br/>
-                                      <em>Room: {entry.location}</em>
-                                    </div>
+                          if (isStartLesson) {
+                            return (
+                                <div
+                                    key={`${rowIndex}-${colIndex}`}
+                                    className="p-2 border bg-yellow-100 text-sm font-medium text-gray-800 cursor-pointer"
+                                    style={{gridRow: `span ${entry.periods}`}}
+                                    onClick={(event) => handleCourseClick(entry, event)}
+                                    onMouseEnter={(event) =>
+                                        fetchAndShowDeadlines(entry, event)
+                                    }
+                                    onMouseLeave={hidePopup}
+                                >
+                                  <strong>{entry.course_name}</strong>
+                                  <br/>
+                                  <em>Room: {entry.location}</em>
+                                </div>
 
-                                );
-                              }
+                            );
+                          }
 
-                              if (entry) return null;
+                          if (entry) return null;
 
-                              return (
-                                  <div
-                                      key={`${rowIndex}-${colIndex}`}
-                                      className="p-2 border bg-gray-50 cursor-pointer hover:bg-blue-100"
-                                      onClick={() => handleAddEvent(day, rowIndex)}
-                                  >
-                                    {customEvents[eventKey] && (
-                                        <span className="text-xs text-blue-500">
+                          return (
+                              <div
+                                  key={`${rowIndex}-${colIndex}`}
+                                  className="p-2 border bg-gray-50 cursor-pointer hover:bg-blue-100"
+                                  onClick={() => handleAddEvent(day, rowIndex)}
+                              >
+                                {customEvents[eventKey] && (
+                                    <span className="text-xs text-blue-500">
                               {customEvents[eventKey]}
                             </span>
-                                    )}
-                                  </div>
-                              );
+                                )}
+                              </div>
+                          );
 
 
-                            })}
-                          </React.Fragment>
-                      ))}
-                    </div>
-                  </div>
-              )}
-            </div>
+                        })}
+                      </React.Fragment>
+                  ))}
+                </div>
+              </div>
+          )}
+        </div>
 
         {hoveredDeadline && (
             <div className="absolute bg-white p-4 rounded shadow-lg border">
@@ -302,7 +301,7 @@ const ScheduleView: React.FC = () => {
         {activePopup && activePopup.type === "deadline" && (
             <DeadlinePopUp
                 onClose={() => setActivePopup(null)}
-                courseValueId={activePopup.course.course_value_id} // Pass course_value_id here
+                courseValueId={activePopup.course.course_value_id}
             />
         )}
 
@@ -321,29 +320,29 @@ const ScheduleView: React.FC = () => {
             </div>
         )}
 
-        {popupData && popupData.position && (
+
+
+
+        {popupData && popupData.deadlines && popupData.deadlines.length > 0 && (
             <div
                 className="absolute bg-white p-4 rounded shadow-lg border"
                 style={{
-                  top: popupData.position.top,
-                  left: popupData.position.left,
+                  top: popupData.position?.top,
+                  left: popupData.position?.left,
                 }}
             >
               <h3 className="text-lg font-bold mb-2">Deadlines</h3>
-              {popupData.deadlines.length > 0 ? (
-                  <ul>
-                    {popupData.deadlines.map((deadline) => (
-                        <li key={deadline.UID} className="mb-1">
-                          <strong>{deadline.deadline_type}:</strong> {deadline.description} <br />
-                          <em>Due: {new Date(deadline.deadline).toLocaleString()}</em>
-                        </li>
-                    ))}
-                  </ul>
-              ) : (
-                  <p className="text-gray-500">No deadlines found.</p>
-              )}
+              <ul>
+                {popupData.deadlines.map((deadline) => (
+                    <li key={deadline.UID} className="mb-1">
+                      <strong>{deadline.deadline_type}:</strong> {deadline.description} <br />
+                      <em>Due: {new Date(deadline.deadline).toLocaleString()}</em>
+                    </li>
+                ))}
+              </ul>
             </div>
         )}
+
 
 
 

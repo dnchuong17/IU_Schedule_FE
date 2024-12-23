@@ -8,7 +8,7 @@ interface LoginProps {
   onLoginSuccess?: () => void; // Callback function from parent
 }
 
-const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
+const Login: React.FC<LoginProps> = () => {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [focusedInput, setFocusedInput] = useState<{
@@ -35,7 +35,6 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         localStorage.setItem("user_id", response.user_id);
         localStorage.setItem("student_id", response.studentId);
         setLoginMessage("Login successful!");
-        onLoginSuccess(); // Call parent callback on success
       } else {
         setLoginMessage("Account does not exist.");
       }
