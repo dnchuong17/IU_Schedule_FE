@@ -10,6 +10,9 @@ import { faBookmark } from "@fortawesome/free-solid-svg-icons";
 import { Api } from "../../utils/api.ts";
 import { toast } from "react-toastify";
 import { scheduleRequest } from "../../utils/request/scheduleRequest";
+import {useState} from "react";
+import Login from "../Login_Register/login.tsx";
+import Register from "../Login_Register/register.tsx";
 
 interface ScheduleTableProps {
   completeSchedule: CompleteSchedule;
@@ -17,6 +20,8 @@ interface ScheduleTableProps {
 }
 
 const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
+  const [isLoginOpen, setIsLoginOpen] = useState<boolean>(false); // State for Login modal
+  const [isRegisterOpen, setIsRegisterOpen] = useState<boolean>(false); // State for Register modal
   const rowsProps: CellProps[][] = populateSchedule(completeSchedule);
 
   const handleSave = async () => {
@@ -31,7 +36,17 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
     // Map the courses to the required format
     const listOfCourses = completeSchedule.flatMap((classObj) => {
       const { classObject } = classObj;
-      const { courseID, courseName, credits, date, startPeriod, periodsCount, location, lecturer, isActive } = classObject;
+      const {
+        courseID,
+        courseName,
+        credits,
+        date,
+        startPeriod,
+        periodsCount,
+        location,
+        lecturer,
+        isActive,
+      } = classObject;
 
       // Ensure credits is a number
       const creditsValue = Number(credits);  // Convert credits to a number if it's a string
@@ -73,8 +88,8 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
     console.log("List of Courses to be sent:", listOfCourses);
 
     const payload: scheduleRequest = {
-      studentId: studentId,
-      templateId: null,  // Ensure templateId is not null unless allowed by type
+      studentId,
+      templateId: null,
       listOfCourses,
     };
 
@@ -118,98 +133,136 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
   ));
 
   return (
-      <div
-          className={`overflow-x-auto rounded shadow shadow-slate-300 ${
-              center ? `xl:col-span-2 xl:mx-auto xl:max-w-screen-lg` : ""
-          }`}
-      >
-        <table className="w-full min-w-[50rem] table-fixed bg-white">
-          <thead>
-          <tr className="text-white">
-            <Cell className="bg-indigo-400 py-1" useTH={true}></Cell>
-            <Cell className="w-[13.66%] bg-indigo-400 py-1" useTH={true}>
-              Mon
-            </Cell>
-            <Cell className="w-[13.66%] bg-indigo-400 py-1" useTH={true}>
-              Tue
-            </Cell>
-            <Cell className="w-[13.66%] bg-indigo-400 py-1" useTH={true}>
-              Wed
-            </Cell>
-            <Cell className="w-[13.66%] bg-indigo-400 py-1" useTH={true}>
-              Thu
-            </Cell>
-            <Cell className="w-[13.66%] bg-indigo-400 py-1" useTH={true}>
-              Fri
-            </Cell>
-            <Cell className="w-[13.66%] bg-indigo-400 py-1" useTH={true}>
-              Sat
-            </Cell>
-            <Cell className="w-[13.66%] bg-indigo-400 py-1" useTH={true}>
-              Sun
-            </Cell>
-          </tr>
-          </thead>
-          <tbody>{rows}</tbody>
-        </table>
-        <button
-            onClick={handleSave}
-            className="mt-2 text-indigo-400 hover:text-indigo-600"
+
+      <div>
+        <div className="flex justify-end gap-4 p-4">
+          <button
+              onClick={() => setIsLoginOpen(true)}
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Login
+          </button>
+          <button
+              onClick={() => setIsRegisterOpen(true)}
+              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+          >
+            Register
+          </button>
+        </div>
+
+
+        <div
+            className={`overflow-x-auto rounded shadow shadow-slate-300 ${
+                center ? `xl:col-span-2 xl:mx-auto xl:max-w-screen-lg` : ""
+            }`}
         >
-          <FontAwesomeIcon icon={faBookmark} /> Save Schedule
-        </button>
+          <table className="w-full min-w-[50rem] table-fixed bg-white">
+            <thead>
+            <tr className="text-white">
+              <Cell className="bg-indigo-400 py-1" useTH={true}></Cell>
+              <Cell className="w-[13.66%] bg-indigo-400 py-1" useTH={true}>
+                Mon
+              </Cell>
+              <Cell className="w-[13.66%] bg-indigo-400 py-1" useTH={true}>
+                Tue
+              </Cell>
+              <Cell className="w-[13.66%] bg-indigo-400 py-1" useTH={true}>
+                Wed
+              </Cell>
+              <Cell className="w-[13.66%] bg-indigo-400 py-1" useTH={true}>
+                Thu
+              </Cell>
+              <Cell className="w-[13.66%] bg-indigo-400 py-1" useTH={true}>
+                Fri
+              </Cell>
+              <Cell className="w-[13.66%] bg-indigo-400 py-1" useTH={true}>
+                Sat
+              </Cell>
+              <Cell className="w-[13.66%] bg-indigo-400 py-1" useTH={true}>
+                Sun
+              </Cell>
+            </tr>
+            </thead>
+            <tbody>{rows}</tbody>
+          </table>
+          <button
+              onClick={handleSave}
+              className="mt-2 text-indigo-400 hover:text-indigo-600"
+          >
+            <FontAwesomeIcon icon={faBookmark}/> Save Schedule
+          </button>
+        </div>
+
+        {/* Render Login Modal */}
+        {isLoginOpen && (
+            <Login
+                onLoginSuccess={() => {
+                  setIsLoginOpen(false); // Close login modal on success
+                }}
+            />
+        )}
+
+        {/* Render Register Modal */}
+        {isRegisterOpen && (
+            <Register
+                onRegisterSuccess={() => {
+                  setIsRegisterOpen(false); // Close register modal on success
+                }}
+            />
+        )}
       </div>
   );
 };
+        function populateSchedule(completeSchedule: CompleteSchedule) {
+        const rowsProps: CellProps[][] = initTable();
 
-function populateSchedule(completeSchedule: CompleteSchedule) {
-  const rowsProps: CellProps[][] = initTable();
+        // Map English days to Vietnamese days
+        const dayMapping: {[key: string]: string} = {
+        Mon: "Thứ Hai",
+        Tue: "Thứ Ba",
+        Wed: "Thứ Tư",
+        Thu: "Thứ Năm",
+        Fri: "Thứ Sáu",
+        Sat: "Thứ Bảy",
+        Sun: "Chủ Nhật",
+      };
 
-  // Map English days to Vietnamese days
-  const dayMapping: { [key: string]: string } = {
-    Mon: "Thứ Hai",
-    Tue: "Thứ Ba",
-    Wed: "Thứ Tư",
-    Thu: "Thứ Năm",
-    Fri: "Thứ Sáu",
-    Sat: "Thứ Bảy",
-    Sun: "Chủ Nhật",
-  };
+        for (const {classObject, color} of completeSchedule) {
+        const {courseName, startPeriod, periodsCount, location, lecturer} = classObject;
+        const dates = _extractDates(classObject); // use dates array to know if we need 1 or 2 rows.
 
-  for (const { classObject, color } of completeSchedule) {
-    const { courseName, startPeriod, periodsCount, location, lecturer } = classObject;
-    const dates = _extractDates(classObject); // use dates array to know if we need 1 or 2 rows.
+        dates.forEach((date, index) => {
+        // Convert the English date to Vietnamese date using dayMapping
+        const vietnameseDate = dayMapping[date] || date;
 
-    dates.forEach((date, index) => {
-      // Convert the English date to Vietnamese date using dayMapping
-      const vietnameseDate = dayMapping[date] || date;
+        // Ensure startPeriod[index] and periodsCount[index] are numbers
+        const startPeriodValue = Number(startPeriod[index]);
+        const periodsCountValue = Number(periodsCount[index]);
 
-      // Ensure startPeriod[index] and periodsCount[index] are numbers
-      const startPeriodValue = Number(startPeriod[index]);
-      const periodsCountValue = Number(periodsCount[index]);
-
-      for (let row = 0; row < periodsCountValue; row++) {
+        for (let row = 0; row < periodsCountValue; row++) {
         const oldCellProps = rowsProps[startPeriodValue - 1 + row][date + 1];
         let newCellProps: CellProps;
         if (row == 0) {
-          // Edit top cell and set rowSpan
-          const cellContent = (
-              <div className="flex flex-col gap-2">
-                <p className="break-words text-sm font-bold">{courseName}</p>
-                <p className="break-words text-xs">
-                  {lecturer[index]}
-                  <br />
-                  {location[index]}
-                </p>
-              </div>
-          );
-          newCellProps = {
-            children: cellContent,
-            className: `px-1.5 ${color}`,
-            rowSpan: periodsCountValue,
-          };
-        } else {
-          // Hide all bottom cells to top cell to span downwards
+        // Edit top cell and set rowSpan
+        const cellContent = (
+        <div className="flex flex-col gap-2">
+        <p className="break-words text-sm font-bold">{courseName}</p>
+  <p className="break-words text-xs">
+    {lecturer[index]}
+    <br/>
+    {location[index]}
+  </p>
+</div>
+)
+  ;
+  newCellProps = {
+    children: cellContent,
+    className: `px-1.5 ${color}`,
+    rowSpan: periodsCountValue,
+  };
+} else
+  {
+    // Hide all bottom cells to top cell to span downwards
           newCellProps = {
             ...oldCellProps,
             className: "hidden",

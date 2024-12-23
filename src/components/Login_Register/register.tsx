@@ -1,8 +1,11 @@
 import React, { useState, FormEvent, useRef } from 'react';
 import { FaUser, FaLock } from 'react-icons/fa';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
+import { IoClose } from 'react-icons/io5'; // Import close icon
 import { Api } from "../../utils/api.ts";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface FocusedInput {
     email: boolean;
@@ -18,16 +21,15 @@ const Register: React.FC = () => {
     const [student_id, setStudent_id] = useState<string>('');
 
     const [loading, setLoading] = useState(false);
-
     const [focusedInput, setFocusedInput] = useState<FocusedInput>({
         email: false,
         name: false,
         password: false,
         student_id: false,
     });
-
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [registerMessage, setRegisterMessage] = useState<string>('');
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(true); // Modal visibility state
     const navigate = useNavigate();
 
     const api = new Api();
@@ -66,6 +68,7 @@ const Register: React.FC = () => {
         setRegisterMessage(''); // Clear any previous messages
 
         if (!validateForm()) {
+            toast.error("All fields are required.");
             return;
         }
 
@@ -78,25 +81,38 @@ const Register: React.FC = () => {
             student_id,
         };
 
-        console.log(registerRequest);
         try {
             const response = await api.register(registerRequest);
-            console.log(response);
-            setRegisterMessage("Registration successful!");
+            console.log("Registration Response:", response); // Log response for debugging
+            toast.success("Registration successful!");
+
             setTimeout(() => {
                 setLoading(false);
-                navigate("/login");
-            }, 3000);
+                navigate("/login"); // Redirect to login page
+            }, 3000); // Wait for 3 seconds before navigating
         } catch (error: any) {
             console.error("Registration failed:", error.response?.data || error.message);
-            setRegisterMessage(error.response?.data?.message || "Registration failed. Please try again.");
+            const errorMessage = error.response?.data?.message || "Registration failed. Please try again.";
+            toast.error(errorMessage);
+            setRegisterMessage(errorMessage);
             setLoading(false);
         }
     };
 
+
+    if (!isModalOpen) return null; // Do not render the modal if it's closed
+
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white p-9 rounded-lg shadow-lg w-96">
+            <div className="bg-white p-9 rounded-lg shadow-lg w-96 relative">
+                {/* Close Button */}
+                <button
+                    className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+                    onClick={() => setIsModalOpen(false)} // Close the modal
+                >
+                    <IoClose size={24} />
+                </button>
+
                 <h1 className="text-2xl font-semibold mb-6 text-center">Register</h1>
                 <form onSubmit={onSubmitHandler}>
                     {/* Name */}
@@ -248,4 +264,3 @@ const Register: React.FC = () => {
 };
 
 export default Register;
-

@@ -1,24 +1,22 @@
+import React, { useState } from "react";
 import WorkflowList from "./pages/WorkflowList";
 import DeadlinePopUp from "./components/Schedule/DeadlinePopUp";
 import NotificationPopUp from "./components/Schedule/NotificationPopUp";
-import Login from "./components/Login_Register/login.tsx";
-import Register from "./components/Login_Register/register.tsx";
 import Filters from "./components/Timetable/Filters.tsx";
 import ScheduleView from "./components/Schedule/ScheduleView";
 import Footer from "./components/HomePage/footer.tsx";
-// import Header from "./components/HomePage/header.tsx";
-import { BrowserRouter as Router } from "react-router-dom";
-import { Route, Routes, Outlet, Navigate } from "react-router-dom";
-import Navbar from "../src/components/HomePage/navbar.tsx"
+import { BrowserRouter as Router, Route, Routes, Outlet, Navigate } from "react-router-dom";
+import Navbar from "../src/components/HomePage/navbar.tsx";
 import Schedule from "./pages/Schedule.tsx";
 import Timetable from "../src/pages/TimeTable.tsx";
+import Login from "./components/Login_Register/login";
+import Register from "./components/Login_Register/register";
 
 // Layout component that includes Header and Footer
-const DefaultLayout = () => {
+const DefaultLayout = ({ onSignIn, onRegister }: any) => {
     return (
         <>
-            <Navbar />
-            {/*<Header />*/}
+            <Navbar onSignIn={onSignIn} onRegister={onRegister} />
             <Outlet />
             <Footer />
         </>
@@ -37,54 +35,47 @@ const NotFound = () => {
     );
 };
 
-
 function App() {
+    const [isLoginOpen, setIsLoginOpen] = useState(false);
+    const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+
     return (
         <Router>
             <Routes>
                 <Route path="/admin/WorkflowList" element={<WorkflowList />} />
 
-
-                <Route element={<DefaultLayout />}>
+                <Route
+                    element={
+                        <DefaultLayout
+                            onSignIn={() => setIsLoginOpen(true)}
+                            onRegister={() => setIsRegisterOpen(true)}
+                        />
+                    }
+                >
                     <Route path="/" element={<Navigate to="/scheduleView" replace />} />
-
                     <Route path="/deadlinePopUp" element={<DeadlinePopUp />} />
                     <Route path="/notificationPopUp" element={<NotificationPopUp />} />
-
                     <Route
-                        path="/login"
-                        element={<Login />}
+                        path="/schedule"
+                        element={
+                            <Schedule
+                                isLoginOpen={isLoginOpen}
+                                isRegisterOpen={isRegisterOpen}
+                                closeLogin={() => setIsLoginOpen(false)}
+                                closeRegister={() => setIsRegisterOpen(false)}
+                            />
+                        }
                     />
-                    <Route path="/register" element={<Register />} />
                     <Route path="/scheduleView" element={<ScheduleView />} />
                     <Route path="/filters" element={<Filters />} />
-                    <Route
-                        path="/register"
-                        element={<Register />}
-                    />
-                    <Route
-                        path="/scheduleView"
-                        element={<ScheduleView />}
-                    />
-                    <Route
-                        path="/filters"
-                        element={<Filters />}
-                    />
-
-                    <Route
-                        path="/timeTable"
-                        element={<Timetable />}
-                    />
-
-                    <Route path="/schedule" element={<Schedule />} />
-
-
-                    <Route
-                        path="*"
-                        element={<NotFound />}
-                    />
+                    <Route path="/timeTable" element={<Timetable />} />
+                    <Route path="*" element={<NotFound />} />
                 </Route>
             </Routes>
+
+            {/* Global Modals for Login and Register */}
+            {isLoginOpen && <Login onLoginSuccess={() => setIsLoginOpen(false)} />}
+            {isRegisterOpen && <Register onRegisterSuccess={() => setIsRegisterOpen(false)} />}
         </Router>
     );
 }
