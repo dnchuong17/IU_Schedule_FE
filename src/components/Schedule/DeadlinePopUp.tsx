@@ -32,9 +32,11 @@ const DeadlinePopUp: React.FC<DeadlinePopUpProps> = ({ onClose }) => {
 
         const parsedDeadline = new Date(deadline);
         if (isNaN(parsedDeadline.getTime())) {
-            alert("Invalid deadline format.");
+            alert("Invalid deadline format. Please use a valid date and time.");
             return;
         }
+
+        const formattedDeadline = `${parsedDeadline.getFullYear()}-${String(parsedDeadline.getMonth() + 1).padStart(2, '0')}-${String(parsedDeadline.getDate()).padStart(2, '0')} ${String(parsedDeadline.getHours()).padStart(2, '0')}:${String(parsedDeadline.getMinutes()).padStart(2, '0')}:${String(parsedDeadline.getSeconds()).padStart(2, '0')}`;
 
         const api = new Api();
 
@@ -42,7 +44,7 @@ const DeadlinePopUp: React.FC<DeadlinePopUpProps> = ({ onClose }) => {
             deadlineType: deadlineType as DeadlineType,
             priority,
             description,
-            deadline: parsedDeadline,
+            deadline: formattedDeadline,
             courseValueId: Number(courseValueId),
         };
         console.log(deadlineRequest);
@@ -58,6 +60,8 @@ const DeadlinePopUp: React.FC<DeadlinePopUpProps> = ({ onClose }) => {
             alert(`Failed to create deadline: ${error.response?.data?.message || error.message}`);
         }
     };
+
+
 
     const handleRadioChange = (type: DeadlineType) => {
         setDeadlineType(type);
@@ -158,20 +162,33 @@ const DeadlinePopUp: React.FC<DeadlinePopUpProps> = ({ onClose }) => {
                 </div>
 
                 <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-medium mb-2" >
+                    <label className="block text-gray-700 text-sm font-medium mb-2">
                         Deadline
                     </label>
                     <input
                         type="datetime-local"
                         id="deadline"
                         value={deadline}
-                        onChange={(e) => setDeadline(e.target.value)}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            if (value) {
+                                const parsedDate = new Date(value);
+                                if (!isNaN(parsedDate.getTime())) {
+                                    setDeadline(value); // Lưu raw input từ datetime-local
+                                } else {
+                                    alert("Invalid date and time format");
+                                }
+                            } else {
+                                setDeadline("");
+                            }
+                        }}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none shadow-sm"
                     />
+
                 </div>
 
                 <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-boldm mb-2" >
+                    <label className="block text-gray-700 text-sm font-boldm mb-2">
                         Course Value ID
                     </label>
                     <input
