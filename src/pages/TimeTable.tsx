@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { Api } from "@/utils/api.ts";
 import "react-toastify/dist/ReactToastify.css";
@@ -25,12 +25,12 @@ const dayMapping: { [key: string]: string } = {
 };
 
 type ScheduleEntry = {
-    days_in_week: string;
-    start_period: string;
-    periods: number;
-    course_name: string;
+    day: string;
+    startPeriod: number;
+    periodsCount: number;
+    courseName: string;
     location: string;
-    lecture?: string;
+    lecturer?: string;
 };
 
 const TimeTable: React.FC = () => {
@@ -89,7 +89,6 @@ const TimeTable: React.FC = () => {
                 throw new Error("No schedule data found for the selected template!");
             }
 
-            // Split the data based on start_period and periods count
             const processedSchedule = scheduleData.flatMap((entry) => {
                 const daysArray = entry.days_in_week.split(",").map((d) => d.trim());
                 const startPeriod = parseInt(entry.start_period, 10);
@@ -102,8 +101,8 @@ const TimeTable: React.FC = () => {
                     startPeriod,
                     periodsCount,
                     courseName: entry.course_name,
-                    location: locations[idx].trim(),
-                    lecturer: lecturers[idx].trim(),
+                    location: locations[idx]?.trim() || "Unknown",
+                    lecturer: lecturers[idx]?.trim() || "N/A",
                 }));
             });
 
@@ -151,6 +150,56 @@ const TimeTable: React.FC = () => {
         return today === 0 ? 6 : today - 1; // Adjust for Sunday being 0
     }, []);
 
+    const renderedSchedule = useMemo(() => {
+        return lessonSlots.map((slot, rowIndex) => (
+            <React.Fragment key={rowIndex}>
+                <div className="bg-gray-200 text-center font-semibold p-2 border">
+                    {slot}
+                </div>
+                {daysOfWeek.map((day, colIndex) => {
+                    const entry = findSubject(day, rowIndex);
+                    const isStartLesson =
+                        entry && rowIndex + 1 === entry.startPeriod;
+                    const eventKey = `${day}-${rowIndex}`;
+
+                    if (isStartLesson) {
+                        return (
+                            <div
+                                key={`${rowIndex}-${colIndex}`}
+                                className="p-2 border bg-yellow-100 text-sm font-medium text-gray-800"
+                                style={{
+                                    gridRow: `span ${entry.periodsCount}`,
+                                }}
+                            >
+                                <strong>{entry.courseName}</strong>
+                                <br />
+                                <em>Room: {entry.location}</em>
+                                <br />
+                                <small>Lecturer: {entry.lecturer}</small>
+                            </div>
+                        );
+                    }
+
+                    if (entry) return null;
+
+                    return (
+                        <div
+                            key={`${rowIndex}-${colIndex}`}
+                            className="p-2 border bg-gray-50 cursor-pointer hover:bg-blue-100"
+                            onClick={() => handleAddEvent(day, rowIndex)}
+                        >
+                            {customEvents[eventKey] && (
+                                <span className="text-xs text-blue-500">
+                                    {customEvents[eventKey]}
+                                </span>
+                            )}
+                        </div>
+                    );
+                })}
+            </React.Fragment>
+        ));
+    }, [scheduleData, customEvents, findSubject]);
+
     return (
         <div className="text-center font-sans p-6">
             <ToastContainer />
@@ -162,7 +211,6 @@ const TimeTable: React.FC = () => {
             ) : (
                 <div className="max-w-6xl mx-auto text-sm border p-4 shadow-lg rounded-md bg-white">
                     <div className="grid grid-cols-8 gap-1">
-                        {/* Header Row */}
                         <div className="bg-gray-300 text-center font-bold p-2"></div>
                         {daysOfWeek.map((day, index) => (
                             <div
@@ -176,57 +224,7 @@ const TimeTable: React.FC = () => {
                                 {day}
                             </div>
                         ))}
-
-                        {/* Rows for lessons */}
-                        {lessonSlots.map((slot, rowIndex) => (
-                            <React.Fragment key={rowIndex}>
-                                {/* Time Slot Label */}
-                                <div className="bg-gray-200 text-center font-semibold p-2 border">
-                                    {slot}
-                                </div>
-                                {/* Lesson Cells */}
-                                {daysOfWeek.map((day, colIndex) => {
-                                    const entry = findSubject(day, rowIndex);
-                                    const isStartLesson =
-                                        entry && rowIndex + 1 === entry.startPeriod;
-                                    const eventKey = `${day}-${rowIndex}`;
-
-                                    if (isStartLesson) {
-                                        return (
-                                            <div
-                                                key={`${rowIndex}-${colIndex}`}
-                                                className="p-2 border bg-yellow-100 text-sm font-medium text-gray-800"
-                                                style={{
-                                                    gridRow: `span ${entry.periodsCount}`,
-                                                }}
-                                            >
-                                                <strong>{entry.courseName}</strong>
-                                                <br />
-                                                <em>Room: {entry.location}</em>
-                                                <br />
-                                                <small>Lecturers: {entry.lecturer || "N/A"}</small>
-                                            </div>
-                                        );
-                                    }
-
-                                    if (entry) return null;
-
-                                    return (
-                                        <div
-                                            key={`${rowIndex}-${colIndex}`}
-                                            className="p-2 border bg-gray-50 cursor-pointer hover:bg-blue-100"
-                                            onClick={() => handleAddEvent(day, rowIndex)}
-                                        >
-                                            {customEvents[eventKey] && (
-                                                <span className="text-xs text-blue-500">
-                                                    {customEvents[eventKey]}
-                                                </span>
-                                            )}
-                                        </div>
-                                    );
-                                })}
-                            </React.Fragment>
-                        ))}
+                        {renderedSchedule}
                     </div>
                 </div>
             )}
