@@ -14,6 +14,7 @@ export class Api {
     });
   }
 
+
   getAxiosObject() {
     return this.axiosObject;
   }
