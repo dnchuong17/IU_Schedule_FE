@@ -9,10 +9,11 @@ export class Api {
 
   constructor() {
     this.axiosObject = axios.create({
-      baseURL: "http://localhost:3000/api",
+      baseURL: "https://iuscheduler-production.up.railway.app/api",
       withCredentials: true,
     });
   }
+
 
   getAxiosObject() {
     return this.axiosObject;
