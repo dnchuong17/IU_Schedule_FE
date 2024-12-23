@@ -6,6 +6,7 @@ import viteLogo from '../../assets/logo.png';
 const Navbar = () => {
     const [visible, setVisible] = useState(false);
 
+
     return (
         <motion.div
             initial={{ y: -100 }}
