@@ -1,6 +1,6 @@
 export class scheduleRequest {
   studentId?: string;
-  templateId?: number;
+  templateId?: number | null;
   listOfCourses?: {
     courseID: string;
     courseName: string;

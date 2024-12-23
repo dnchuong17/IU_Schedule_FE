@@ -3,14 +3,14 @@ import { ClassObject, CourseObject, CoursesMap } from "./classInput";
 export function getActiveClasses(courseObject: CourseObject) {
   return new Map(
     Array.from(courseObject.classesMap).filter(
-      ([_, classObject]) => classObject.isActive
+      ([, classObject]) => classObject.isActive
     )
   );
 }
 
 export function getActiveCourses(coursesMap: CoursesMap) {
   return new Map(
-    Array.from(coursesMap).filter(([_, courseObject]) => {
+    Array.from(coursesMap).filter(([, courseObject]) => {
       for (const classObject of courseObject.classesMap.values()) {
         if (classObject.isActive) return true;
       }

@@ -19,7 +19,7 @@ export class Api {
   }
 
   async login(loginRequest: LoginRequest) {
-    const { email, password } = loginRequest;
+    const {email, password} = loginRequest;
     try {
       const result1 = await this.axiosObject.post("/auth/login", {
         email,
@@ -126,6 +126,7 @@ export class Api {
       throw error;
     }
   }
+
   async createNewSchedule(scheduleRequest: scheduleRequest) {
     try {
       const studentId = localStorage.getItem("student_id");
@@ -149,6 +150,47 @@ export class Api {
       throw error;
     }
   }
+
+  async updateNote(content: string, courseValueId: number) {
+    try {
+      const response = await this.axiosObject.patch("/note/update", {
+        content, courseValueId,
+      });
+      console.log("Update note successfully: ", response.data);
+      return response.data;
+    } catch (error) {
+      console.log("Error updating note: ", error);
+      throw error;
+    }
+  }
+
+
+  async createNote(content: string, courseValueId: number) {
+    try {
+      const response = await this.axiosObject.post('/note/create', {
+        content,
+        courseValueId
+      });
+      console.log("Create note successfully: ", response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating note:', error);
+      throw error;
+    }
+  }
+
+  async getDeadline(courseValueId: number) {
+    try {
+      const response = await this.axiosObject.get(`/deadline/by-course-value/${courseValueId}`);
+      console.log("Get deadline successfully: ", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching deadlines: ", error);
+      throw error;
+    }
+  }
+
 }
+
 
 export default new Api();

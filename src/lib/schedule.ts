@@ -32,7 +32,7 @@
 //     return serialDate;
 //   });
 // }
-// import { BG_COLOR_PALETTE } from "../pages/index";
+import { BG_COLOR_PALETTE } from "../components/ui/Color";
 import { ClassObject, CoursesMap } from "./classInput";
 import { getActiveClasses } from "./courseAndClassUtils";
 export interface ClassID {
@@ -218,20 +218,20 @@ export function mapToCompleteSchedule(
 
     return {
       classObject,
-      // color: courseObject.color ?? BG_COLOR_PALETTE[0],
+      color: courseObject.color ?? BG_COLOR_PALETTE[0],
     } as CompleteClass;
   });
 }
 
 export function mapColor(coursesMap: CoursesMap) {
-  // let colorCounter = 0;
+  let colorCounter = 0;
   const newMap: CoursesMap = new Map();
   for (const [courseKey, courseObject] of coursesMap) {
     newMap.set(courseKey, {
       ...courseObject,
-      // color: BG_COLOR_PALETTE[colorCounter],
+      color: BG_COLOR_PALETTE[colorCounter],
     });
-    // colorCounter = (colorCounter + 1) % BG_COLOR_PALETTE.length;
+    colorCounter = (colorCounter + 1) % BG_COLOR_PALETTE.length;
   }
   return newMap;
 }
