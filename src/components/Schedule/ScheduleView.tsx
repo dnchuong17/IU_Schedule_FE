@@ -165,8 +165,10 @@ const ScheduleView: React.FC = () => {
 
 
   const handleAddEvent = (day: string, rowIndex: number) => {
+    console.log(`Day: ${day}, Row Index: ${rowIndex}`);  // Use the parameters
     toast.info(`You don't have any classes during this time.`);
   };
+
 
   const getCurrentDayIndex = () => {
     const today = new Date().getDay();
