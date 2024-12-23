@@ -1,24 +1,26 @@
 import WorkflowList from "./pages/WorkflowList";
 import DeadlinePopUp from "./components/Schedule/DeadlinePopUp";
-import NotePopUp from "./components/Schedule/NotePopUp";
 import NotificationPopUp from "./components/Schedule/NotificationPopUp";
 import Login from "./components/Login_Register/login.tsx";
 import Register from "./components/Login_Register/register.tsx";
 import Filters from "./components/Timetable/Filters.tsx";
 import ScheduleView from "./components/Schedule/ScheduleView";
-// import Footer from "./components/Header_Footer/footer.tsx";
-import Header from "./components/Header_Footer/header.tsx";
+import Footer from "./components/HomePage/footer.tsx";
+// import Header from "./components/HomePage/header.tsx";
 import { BrowserRouter as Router } from "react-router-dom";
 import { Route, Routes, Outlet, Navigate } from "react-router-dom";
+import Navbar from "../src/components/HomePage/navbar.tsx"
 import Schedule from "./pages/Schedule.tsx";
-import TimeTable from "./pages/TimeTable.tsx"
+import Timetable from "../src/pages/TimeTable.tsx";
+
 // Layout component that includes Header and Footer
 const DefaultLayout = () => {
     return (
         <>
-            <Header />
+            <Navbar />
+            {/*<Header />*/}
             <Outlet />
-            {/* <Footer /> */}
+            <Footer />
         </>
     );
 };
@@ -35,36 +37,52 @@ const NotFound = () => {
     );
 };
 
-function App() {
-    const handleLoginSuccess = () => {
-        console.log("Login successful");
-    };
 
+function App() {
     return (
         <Router>
             <Routes>
                 <Route path="/admin/WorkflowList" element={<WorkflowList />} />
 
+
                 <Route element={<DefaultLayout />}>
                     <Route path="/" element={<Navigate to="/scheduleView" replace />} />
 
                     <Route path="/deadlinePopUp" element={<DeadlinePopUp />} />
-                    <Route path="/notePopUp" element={<NotePopUp />} />
                     <Route path="/notificationPopUp" element={<NotificationPopUp />} />
 
                     <Route
                         path="/login"
-                        element={<Login onLoginSuccess={handleLoginSuccess} />}
+                        element={<Login />}
                     />
-
                     <Route path="/register" element={<Register />} />
                     <Route path="/scheduleView" element={<ScheduleView />} />
                     <Route path="/filters" element={<Filters />} />
+                    <Route
+                        path="/register"
+                        element={<Register />}
+                    />
+                    <Route
+                        path="/scheduleView"
+                        element={<ScheduleView />}
+                    />
+                    <Route
+                        path="/filters"
+                        element={<Filters />}
+                    />
 
-                    <Route path="*" element={<NotFound />} />
+                    <Route
+                        path="/timeTable"
+                        element={<Timetable />}
+                    />
+
                     <Route path="/schedule" element={<Schedule />} />
-                    <Route path="/timeTable" element={<TimeTable />} />
 
+
+                    <Route
+                        path="*"
+                        element={<NotFound />}
+                    />
                 </Route>
             </Routes>
         </Router>
