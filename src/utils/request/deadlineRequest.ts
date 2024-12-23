@@ -10,6 +10,6 @@ export class DeadlineRequest {
     deadlineType?: DeadlineType;
     priority?: string;
     description?: string;
-    deadline?: string;
+    deadline?: Date;
     courseValueId?: number;
 }
