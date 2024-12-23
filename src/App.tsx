@@ -13,6 +13,8 @@ import Schedule from "./pages/Schedule.tsx";
 import Navbar from "../src/components/HomePage/navbar.tsx"
 
 
+// import Schedule from "./pages/Schedule.tsx";
+import Timetable from "../src/pages/TimeTable.tsx"
 // Layout component that includes Header and Footer
 const DefaultLayout = () => {
   return (
@@ -58,9 +60,29 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/scheduleView" element={<ScheduleView />} />
           <Route path="/filters" element={<Filters />} />
+            <Route
+            path="/register"
+            element={<Register />}
+          />
+          <Route
+            path="/scheduleView"
+            element={<ScheduleView />}
+          />
+          <Route
+            path="/filters"
+            element={<Filters />}
+          />
 
-          <Route path="*" element={<NotFound />} />
-          <Route path="/schedule" element={<Schedule />} />
+            <Route
+                path="/timeTable"
+                element={<Timetable />}
+            />
+
+
+            <Route
+            path="*"
+            element={<NotFound />}
+          />
         </Route>
       </Routes>
     </Router>

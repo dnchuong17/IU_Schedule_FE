@@ -170,6 +170,7 @@ const ScheduleView: React.FC = () => {
   };
 
 
+
   const getCurrentDayIndex = () => {
     const today = new Date().getDay();
     return today === 0 ? 6 : today - 1;
