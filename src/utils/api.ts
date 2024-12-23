@@ -130,15 +130,10 @@ export class Api {
   async createNewSchedule(scheduleRequest: scheduleRequest) {
     try {
       const studentId = localStorage.getItem("student_id");
-      const schedulerId = localStorage.getItem("schedulerId");
       console.log("Retrieved studentId:", studentId); // Verify retrieval
       if (!studentId) {
         console.error("Student ID is missing. Please login again.");
         throw new Error("Student ID is missing.");
-      }
-      if (!schedulerId) {
-        console.error("Scheduler ID is missing. Please select a scheduler.");
-        throw new Error("Scheduler ID is missing.");
       }
       const response = await this.axiosObject.post(
           "/scheduleTemplate/createSchedule",

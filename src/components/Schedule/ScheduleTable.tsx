@@ -8,6 +8,8 @@ import Row from "../Timetable/Row"; // Add this line to import the Row component
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBookmark } from "@fortawesome/free-solid-svg-icons";
 import { Api } from "../../utils/api.ts";
+import { toast } from "react-toastify";
+import { scheduleRequest } from "../../utils/request/scheduleRequest";
 interface ScheduleTableProps {
   completeSchedule: CompleteSchedule;
   center: boolean;
@@ -20,17 +22,8 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
 
   const handleSave = async () => {
     const api = new Api();
-    const studentId = localStorage.getItem("student_id");
-    const schedulerId = localStorage.getItem("schedulerId");
-    console.log("studentId:", studentId); // Log the value
-    if (!studentId) {
-      console.error("Student ID is missing. Please login again.");
-      return;
-    }
-    if (!schedulerId) {
-      console.error("Scheduler ID is missing. Please select a scheduler.");
-      return;
-    }
+    const studentId = localStorage.getItem("student_id") || undefined;
+    // const schedulerId = localStorage.getItem("schedulerId");
 
     // Add debugging logs to verify classObject structure
     completeSchedule.forEach((classObj, index) => {
@@ -61,18 +54,46 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
     // Additional Debugging: Check listOfCourses before API call
     console.log("List of Courses to be sent:", listOfCourses);
 
-    const payload = {
-      studentId, // Ensure this matches the expected type (e.g., string or number)
-      schedulerId, // Ensure this matches the expected type (e.g., string or number)
+    const payload: scheduleRequest = {
+      studentId: studentId,
+      templateId: null,
       listOfCourses,
     };
+
     console.log("API Payload:", payload);
 
     try {
-      const response = await api.createNewSchedule(payload); // Pass payload directly
+      const response = await api.createNewSchedule(payload);
       console.log("Schedule saved successfully:", response);
+      toast.success("Schedule saved successfully!", { autoClose: 3000 });
+
+      const newTemplateId = response.newTemplateId;
+      if (newTemplateId) {
+        console.log("Received templateId:", newTemplateId);
+        // Store in localStorage as a string
+        localStorage.setItem("templateId", newTemplateId.toString());
+
+        // Navigate or perform other actions if needed
+        // history.push(`/schedule/${newTemplateId}`);
+
+        // Inform the user
+        toast.success(
+          `Schedule created successfully! Template ID: ${newTemplateId}`,
+          { autoClose: 3000 }
+        );
+      } else {
+        // Handle the case where newTemplateId is not present
+        toast.error("Schedule created, but no Template ID was returned.", {
+          autoClose: 3000,
+        });
+        console.warn("Template ID is missing in the response:", response);
+      }
     } catch (error) {
       console.error("Failed to save schedule:", error);
+      toast.error(
+        "Failed to save schedule. Please check the console for more details.",
+        { autoClose: 3000 }
+      );
     }
   };
   const rows = rowsProps.map((cellsProps, index) => (
@@ -179,7 +200,7 @@ function initTable() {
     // borderStyle solves 2 problems:
     // prevent borders from overlapping with classes card
     // prevent borders from overflowing outside of table for rounded corners
-    let borderStyle = "border-slate-300";
+    let borderStyle = "border border-solid border-slate-300";
 
     if (period != last_period) {
       borderStyle = (period == 5 ? "border-b-4 " : "border-b ") + borderStyle;
