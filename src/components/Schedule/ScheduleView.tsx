@@ -31,8 +31,10 @@ type ScheduleEntry = {
   start_period: string;
   periods: number;
   course_name: string;
-  location: string;
-  course_value_id: number;  // Assuming this is added to the course data
+  theory_course_value_id: string | null;
+  lab_location: string;
+  theory_location: string;
+  course_value_id: number;
 };
 
 type Deadline = {
@@ -184,14 +186,14 @@ const ScheduleView: React.FC = () => {
       const rect = (event.target as HTMLElement).getBoundingClientRect();
       const response = await api.getDeadline(entry.course_value_id);
       setPopupData({
-        position: { top: rect.bottom + window.scrollY, left: rect.left + window.scrollX },
+        position: {top: rect.bottom + window.scrollY, left: rect.left + window.scrollX},
         deadlines: response?.deadlines || [],
       });
-    } catch (error) {
-      toast.error("Failed to fetch deadlines for this course!", {
-        autoClose: 3000,
-      });
-      setPopupData(null);
+      } catch (error) {
+      //   toast.error("Failed to fetch deadlines for this course!", {
+      //     autoClose: 3000,
+      //   });
+      //   setPopupData(null);
     }
   };
 
@@ -222,7 +224,7 @@ const ScheduleView: React.FC = () => {
                           key={index}
                           className={`text-white font-bold text-center p-2 border ${
                               getCurrentDayIndex() === index
-                                  ? "bg-blue-700"
+                                  ? "bg-blue-500"
                                   : "bg-blue-500"
                           }`}
                       >
@@ -255,7 +257,12 @@ const ScheduleView: React.FC = () => {
                                 >
                                   <strong>{entry.course_name}</strong>
                                   <br/>
-                                  <em>Room: {entry.location}</em>
+                                  <em>
+                                    Room:{" "}
+                                    {entry.theory_course_value_id === null
+                                        ? entry.lab_location
+                                        : entry.theory_location}
+                                  </em>
                                 </div>
 
                             );

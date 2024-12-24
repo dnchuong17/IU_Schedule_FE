@@ -12,5 +12,6 @@ export class scheduleRequest {
     lecturer: string;
     isActive: boolean;
     isDeleted?: boolean;
+    isLab?: boolean; // Ensure isLab is included
   }[];
 }

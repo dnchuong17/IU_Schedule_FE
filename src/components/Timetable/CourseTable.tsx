@@ -97,25 +97,7 @@ const CourseTable: React.FC<CourseTableProps> = ({
     setInputText(event.target.value);
   };
 
-  // const handleCourseSelect = (courseId: string) => {
-  //   const updatedCourses = new Map(coursesMap);
-  //   const course = coursesMap.get(courseId);
 
-  //   if (!course) {
-  //     console.error(`Course with ID '${courseId}' not found.`);
-  //     return;
-  //   }
-
-  //   if (updatedCourses.has(courseId)) {
-  //     updatedCourses.delete(courseId);
-  //   } else {
-  //     updatedCourses.set(courseId, course);
-  //   }
-
-  //   onSelectionChange(updatedCourses);
-  // };
-
-  // src/components/Timetable/CourseTable.tsx
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -242,33 +224,7 @@ const CourseTable: React.FC<CourseTableProps> = ({
     setCoursesMap(newCoursesMap);
   };
 
-  // const toggleClassStateHandler = (courseId: string, classId: string) => {
-  //   setCoursesMap((prevCoursesMap) => {
-  //     const updatedCoursesMap = new Map(prevCoursesMap);
-  //     const course = updatedCoursesMap.get(courseId);
-  //     if (course) {
-  //       const classObj = course.classesMap.get(classId);
-  //       if (classObj) {
-  //         // Toggle the 'active' state of the class
-  //         classObj.isActive = !classObj.isActive;
-  //       }
-  //     }
-  //     return updatedCoursesMap;
-  //   });
-  // };
-  // const toggleClassStateHandler = (courseId: string, classId: string) => {
-  //   setCoursesMap((prevCoursesMap) => {
-  //     const updatedCoursesMap = new Map(prevCoursesMap);
-  //     const course = updatedCoursesMap.get(courseId);
-  //     if (course) {
-  //       const classObj = course.classesMap.get(classId);
-  //       if (classObj) {
-  //         toggleClassState(updatedCoursesMap, classObj);
-  //       }
-  //     }
-  //     return updatedCoursesMap;
-  //   });
-  // };
+
   const toggleClassStateHandler = (courseId: string, classId: string) => {
     setCoursesMap((prevCoursesMap) => {
       const updatedCoursesMap = new Map(prevCoursesMap);

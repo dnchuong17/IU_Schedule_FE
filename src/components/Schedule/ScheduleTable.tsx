@@ -18,46 +18,73 @@ interface ScheduleTableProps {
 const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
   const rowsProps: CellProps[][] = populateSchedule(completeSchedule);
 
-  // src/components/Schedule/ScheduleTable.tsx
+  // src/components/Schedule/ScheduleTable.ts
+  const translateDayToVietnamese = (day: string): string => {
+    const dayMapping: { [key: string]: string } = {
+      Mon: "Thứ Hai",
+      Tue: "Thứ Ba",
+      Wed: "Thứ Tư",
+      Thu: "Thứ Năm",
+      Fri: "Thứ Sáu",
+      Sat: "Thứ Bảy",
+      Sun: "Chủ Nhật",
+    };
+    return dayMapping[day] || day; // Trả về tên gốc nếu không khớp
+  };
+
+
 
   const handleSave = async () => {
     const api = new Api();
     const studentId = localStorage.getItem("student_id") || undefined;
-    // const schedulerId = localStorage.getItem("schedulerId");
 
-    // Add debugging logs to verify classObject structure
-    completeSchedule.forEach((classObj, index) => {
-      console.log(`Class ${index} - classObject:`, classObj.classObject);
-    });
-
-    const listOfCourses = completeSchedule.map((classObj) => {
+    // Process and flatten the schedule into the desired structure
+    const listOfCourses = completeSchedule.flatMap((classObj) => {
       const { classObject } = classObj;
 
-      // Debugging: Log each courseID
-      console.log("Mapping courseID:", classObject.courseID);
+      // Ensure `date` is an array
+      const dates = Array.isArray(classObject.date)
+          ? classObject.date
+          : [classObject.date];
 
-      return {
-        courseID: classObject.courseID, // Ensure this is defined
-        courseName: classObject.courseName,
-        credits: parseInt(classObject.credits, 10),
-        date: classObject.date.join(", "),
-        startPeriod:
-          classObject.startPeriod.length > 0 ? classObject.startPeriod[0] : 0,
-        periodsCount:
-          classObject.periodsCount.length > 0 ? classObject.periodsCount[0] : 0,
-        location: classObject.location.join(", "),
-        lecturer: classObject.lecturer.join(", "),
-        isActive: classObject.isActive,
-      };
+      // Map over the dates to create a flattened structure
+      return dates.map((date, index) => {
+        const location = Array.isArray(classObject.location)
+            ? classObject.location[index] || classObject.location[0]
+            : classObject.location;
+
+        const isLab = typeof location === "string" && location.includes("LA");
+
+        return {
+          courseID: classObject.courseID,
+          courseName: classObject.courseName,
+          credits: parseInt(classObject.credits, 10),
+          date: translateDayToVietnamese(date), // Áp dụng hàm chuyển đổi
+          startPeriod: classObject.startPeriod[index] || classObject.startPeriod[0],
+          periodsCount: classObject.periodsCount[index] || classObject.periodsCount[0],
+          location: location,
+          lecturer: Array.isArray(classObject.lecturer)
+              ? classObject.lecturer[index] || classObject.lecturer[0]
+              : classObject.lecturer,
+          isActive: classObject.isActive,
+          isLab: isLab,
+          isDeleted: false, // Add default value for isDeleted
+        };
+      });
     });
 
-    // Additional Debugging: Check listOfCourses before API call
-    console.log("List of Courses to be sent:", listOfCourses);
+    // Sắp xếp theory trước lab
+    const sortedCourses = listOfCourses.sort((a, b) => {
+      return a.isLab === b.isLab ? 0 : a.isLab ? 1 : -1;
+    });
+
+    // Debugging: Check the sorted list of courses
+    console.log("Sorted List of Courses:", sortedCourses);
 
     const payload: scheduleRequest = {
       studentId: studentId,
       templateId: null,
-      listOfCourses,
+      listOfCourses: sortedCourses,
     };
 
     console.log("API Payload:", payload);
@@ -70,19 +97,13 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
       const newTemplateId = response.newTemplateId;
       if (newTemplateId) {
         console.log("Received templateId:", newTemplateId);
-        // Store in localStorage as a string
         localStorage.setItem("templateId", newTemplateId.toString());
 
-        // Navigate or perform other actions if needed
-        // history.push(`/schedule/${newTemplateId}`);
-
-        // Inform the user
         toast.success(
-          `Schedule created successfully! Template ID: ${newTemplateId}`,
-          { autoClose: 3000 }
+            `Schedule created successfully! Template ID: ${newTemplateId}`,
+            { autoClose: 3000 }
         );
       } else {
-        // Handle the case where newTemplateId is not present
         toast.error("Schedule created, but no Template ID was returned.", {
           autoClose: 3000,
         });
@@ -91,23 +112,24 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
     } catch (error) {
       console.error("Failed to save schedule:", error);
       toast.error(
-        "Failed to save schedule. Please check the console for more details.",
-        { autoClose: 3000 }
+          "Failed to save schedule. Please check the console for more details.",
+          { autoClose: 3000 }
       );
     }
   };
+
   const rows = rowsProps.map((cellsProps, index) => (
-    <Row cellsProps={cellsProps} key={index}></Row>
+      <Row cellsProps={cellsProps} key={index}></Row>
   ));
 
   return (
-    <div
-      className={`overflow-x-auto rounded shadow shadow-slate-300 ${
-        center ? `xl:col-span-2 xl:mx-auto xl:max-w-screen-lg` : ""
-      }`}
-    >
-      <table className="w-full min-w-[50rem] table-fixed bg-white">
-        <thead>
+      <div
+          className={`overflow-x-auto rounded shadow shadow-slate-300 ${
+              center ? `xl:col-span-2 xl:mx-auto xl:max-w-screen-lg` : ""
+          }`}
+      >
+        <table className="w-full min-w-[50rem] table-fixed bg-white">
+          <thead>
           <tr className="text-white">
             <Cell className="bg-indigo-400 py-1" useTH={true}></Cell>
             <Cell className="w-[13.66%] bg-indigo-400 py-1" useTH={true}>
@@ -132,16 +154,16 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
               Sun
             </Cell>
           </tr>
-        </thead>
-        <tbody>{rows}</tbody>
-      </table>
-      <button
-        onClick={handleSave}
-        className="mt-2 text-indigo-400 hover:text-indigo-600"
-      >
-        <FontAwesomeIcon icon={faBookmark} /> Save Schedule
-      </button>
-    </div>
+          </thead>
+          <tbody>{rows}</tbody>
+        </table>
+        <button
+            onClick={handleSave}
+            className="mt-2 text-indigo-400 hover:text-indigo-600"
+        >
+          <FontAwesomeIcon icon={faBookmark} /> Save Schedule
+        </button>
+      </div>
   );
 };
 
@@ -150,7 +172,7 @@ function populateSchedule(completeSchedule: CompleteSchedule) {
 
   for (const { classObject, color } of completeSchedule) {
     const { courseName, startPeriod, periodsCount, location, lecturer } =
-      classObject;
+        classObject;
     const dates = _extractDates(classObject); // use dates array to know if we need 1 or 2 rows.
 
     dates.forEach((date, index) => {
@@ -160,14 +182,14 @@ function populateSchedule(completeSchedule: CompleteSchedule) {
         if (row == 0) {
           // Edit top cell and set rowSpan
           const cellContent = (
-            <div className="flex flex-col gap-2">
-              <p className="break-words text-sm font-bold">{courseName}</p>
-              <p className="break-words text-xs">
-                {lecturer[index]}
-                <br />
-                {location[index]}
-              </p>
-            </div>
+              <div className="flex flex-col gap-2">
+                <p className="break-words text-sm font-bold">{courseName}</p>
+                <p className="break-words text-xs">
+                  {lecturer[index]}
+                  <br />
+                  {location[index]}
+                </p>
+              </div>
           );
           newCellProps = {
             children: cellContent,
@@ -208,25 +230,25 @@ function initTable() {
 
     // Periods Column
     const periodStart =
-      480 +
-      50 * period +
-      (period >= 3 ? 5 : 0) +
-      (period >= 6 ? 10 : 0) +
-      (period >= 9 ? 5 : 0);
+        480 +
+        50 * period +
+        (period >= 3 ? 5 : 0) +
+        (period >= 6 ? 10 : 0) +
+        (period >= 9 ? 5 : 0);
     const periodEnd = periodStart + 50;
     const periodChild = (
-      <p>
-        {period + 1}
-        <span
-          className="absolute top-1 left-10 hidden whitespace-nowrap rounded 
+        <p>
+          {period + 1}
+          <span
+              className="absolute top-1 left-10 hidden whitespace-nowrap rounded
             bg-indigo-900/80 p-1 text-white shadow shadow-indigo-500 group-hover:block"
-        >
+          >
           {Math.floor(periodStart / 60)}h
-          {(periodStart % 60).toLocaleString("en", { minimumIntegerDigits: 2 })}{" "}
-          - {Math.floor(periodEnd / 60)}h
-          {(periodEnd % 60).toLocaleString("en", { minimumIntegerDigits: 2 })}
+            {(periodStart % 60).toLocaleString("en", { minimumIntegerDigits: 2 })}{" "}
+            - {Math.floor(periodEnd / 60)}h
+            {(periodEnd % 60).toLocaleString("en", { minimumIntegerDigits: 2 })}
         </span>
-      </p>
+        </p>
     );
     cellsProps.push({
       children: periodChild,
