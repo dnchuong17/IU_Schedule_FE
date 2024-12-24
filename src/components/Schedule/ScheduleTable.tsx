@@ -10,6 +10,7 @@ import { faBookmark } from "@fortawesome/free-solid-svg-icons";
 import { Api } from "../../utils/api.ts";
 import { toast } from "react-toastify";
 import { scheduleRequest } from "../../utils/request/scheduleRequest";
+
 interface ScheduleTableProps {
   completeSchedule: CompleteSchedule;
   center: boolean;
@@ -193,7 +194,7 @@ function populateSchedule(completeSchedule: CompleteSchedule) {
           );
           newCellProps = {
             children: cellContent,
-            className: `px-1.5 ${color}`,
+            className: `px-1.5 ${color} `,
             rowSpan: periodsCount[index],
           };
         } else {
