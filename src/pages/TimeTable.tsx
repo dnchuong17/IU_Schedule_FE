@@ -74,19 +74,20 @@ const Timetable: React.FC = () => {
         return;
       }
 
-      const allTemplates = await Promise.all(
-        user.scheduler_template_ids.map((schedulerId: number) =>
-          api.getTemplateBySchedulerId(schedulerId)
-        )
-      );
+      // Get the first templateId from the array
+      const firstTemplateId = user.scheduler_template_ids[0];
+      console.log("Using Template ID:", firstTemplateId);
 
-      const flattenedTemplates = allTemplates.flat();
-      if (!flattenedTemplates.length) {
-        toast.error("No schedule data found!", { autoClose: 3000 });
+      const template = await api.getTemplateBySchedulerId(firstTemplateId);
+
+      if (!template || !template.length) {
+        toast.error("No schedule data found for the selected template!", {
+          autoClose: 3000,
+        });
         return;
       }
 
-      setScheduleData(flattenedTemplates);
+      setScheduleData(template);
       toast.success("Schedule loaded successfully!", { autoClose: 3000 });
     } catch (err) {
       setError("Failed to load schedule data.");
@@ -95,6 +96,7 @@ const Timetable: React.FC = () => {
       setLoading(false);
     }
   };
+
 
   const findSubject = (
     day: string,
