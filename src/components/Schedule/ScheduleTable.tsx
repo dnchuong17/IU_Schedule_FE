@@ -58,6 +58,7 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
               : classObject.lecturer,
           isActive: classObject.isActive,
           isLab: isLab,
+          isDeleted: false, // Add default value for isDeleted
         };
       });
     });
