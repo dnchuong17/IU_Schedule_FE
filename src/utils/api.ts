@@ -12,6 +12,9 @@ export class Api {
       baseURL: "https://iuscheduler-production.up.railway.app/api",
       // baseURL: "http://localhost:3000/api",
       withCredentials: true,
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
     });
   }
 
