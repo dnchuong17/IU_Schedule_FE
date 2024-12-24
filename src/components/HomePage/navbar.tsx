@@ -6,8 +6,8 @@ import { Api } from "../../utils/api"; // Adjust the import path according to yo
 import { FiLogOut } from "react-icons/fi"; // Import logout icon
 
 interface NavbarProps {
-    onSignIn: () => void;
-    onRegister: () => void;
+    onSignIn: (onLoginSuccess: (user: { name: string }) => void) => void;
+    onRegister: (onRegisterSuccess: (user: { name: string }) => void) => void;
 }
 
 const Navbar: React.FC<NavbarProps> = ({ onSignIn, onRegister }) => {
@@ -16,25 +16,34 @@ const Navbar: React.FC<NavbarProps> = ({ onSignIn, onRegister }) => {
 
     const api = new Api(); // Create an instance of the Api class
 
-    useEffect(() => {
-        const fetchUser = async () => {
-            const userId = localStorage.getItem("user_id"); // Ensure the ID is stored as a string
-            if (userId) {
-                try {
-                    const userData = await api.findUserById(Number(userId)); // Convert to number
-                    setUser(userData); // Set user state with fetched data
-                } catch (error) {
-                    console.error("Failed to fetch user:", error);
-                    setUser(null); // Reset user state on failure
-                }
+    const fetchUser = async () => {
+        const userId = localStorage.getItem("user_id"); // Ensure the ID is stored as a string
+        if (userId) {
+            try {
+                const userData = await api.findUserById(Number(userId)); // Convert to number
+                setUser(userData); // Set user state with fetched data
+            } catch (error) {
+                console.error("Failed to fetch user:", error);
+                setUser(null); // Reset user state on failure
             }
-        };
+        }
+    };
+
+    useEffect(() => {
         fetchUser();
-    }, []);
+    }, []); // Fetch user once when Navbar is mounted
 
     const handleLogout = () => {
         localStorage.removeItem("user_id"); // Clear user ID from localStorage
         setUser(null); // Reset user state
+    };
+
+    const handleLoginSuccess = (userData: { name: string }) => {
+        setUser(userData); // Update user state after login
+    };
+
+    const handleRegisterSuccess = (userData: { name: string }) => {
+        setUser(userData); // Update user state after registration
     };
 
     return (
@@ -89,13 +98,13 @@ const Navbar: React.FC<NavbarProps> = ({ onSignIn, onRegister }) => {
                             // Show Register and Sign In buttons if not logged in
                             <>
                                 <button
-                                    onClick={onRegister}
+                                    onClick={() => onRegister(handleRegisterSuccess)}
                                     className="hidden sm:block px-8 py-2 rounded-full text-white text-center cursor-pointer transition transform hover:scale-105 bg-gradient-to-r from-blue-400 to-blue-600 shadow-lg hover:shadow-xl hover:from-blue-500 hover:to-blue-700"
                                 >
                                     Register
                                 </button>
                                 <button
-                                    onClick={onSignIn}
+                                    onClick={() => onSignIn(handleLoginSuccess)}
                                     className="hidden sm:block px-8 py-2 rounded-full text-white text-center cursor-pointer transition transform hover:scale-105 bg-gradient-to-r from-blue-500 to-blue-700 shadow-lg hover:shadow-xl hover:from-blue-600 hover:to-blue-800"
                                 >
                                     Sign In

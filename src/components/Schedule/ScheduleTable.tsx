@@ -35,12 +35,10 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
       return;
     }
 
-    // Add debugging logs to verify classObject structure
-    completeSchedule.forEach((classObj, index) => {
-      console.log(`Class ${index} - classObject:`, classObj.classObject);
-    });
+    // Thêm log kiểm tra dữ liệu đầu vào
+    console.log("Complete Schedule:", completeSchedule);
 
-    // Map the courses to the required format
+    // Lọc và tạo danh sách khóa học hợp lệ
     const listOfCourses = completeSchedule.flatMap((classObj) => {
       const { classObject } = classObj;
       const {
@@ -55,16 +53,35 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
         isActive,
         isLab,
       } = classObject;
-      // Ensure credits is a number
-      const creditsValue = Number(credits);  // Convert credits to a number if it's a string
 
-      // Handle case if credits is NaN (in case of invalid conversion)
-      if (isNaN(creditsValue)) {
-        console.warn(`Invalid credits value for course ${courseID}: ${credits}`);
-        return [];  // Skip this course if credits is invalid
+      // Kiểm tra nếu thiếu bất kỳ trường nào
+      if (
+          !courseID ||
+          !courseName ||
+          !credits ||
+          !Array.isArray(date) ||
+          !Array.isArray(startPeriod) ||
+          !Array.isArray(periodsCount) ||
+          !Array.isArray(location) ||
+          !Array.isArray(lecturer) ||
+          date.length === 0 ||
+          startPeriod.length === 0 ||
+          periodsCount.length === 0 ||
+          location.length === 0 ||
+          lecturer.length === 0
+      ) {
+        console.warn("Invalid classObject detected and skipped:", classObject);
+        return [];
       }
 
-      // Map English days to Vietnamese days
+      // Chuyển đổi `credits` sang số
+      const creditsValue = Number(credits);
+      if (isNaN(creditsValue)) {
+        console.warn(`Invalid credits value for course ${courseID}: ${credits}`);
+        return [];
+      }
+
+      // Chuyển đổi ngày sang tiếng Việt
       const dayMapping: { [key: string]: string } = {
         Mon: "Thứ Hai",
         Tue: "Thứ Ba",
@@ -74,31 +91,33 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
         Sat: "Thứ Bảy",
         Sun: "Chủ Nhật",
       };
+      const vietnameseDates = date.map((day) => dayMapping[day] || day);
 
-      // Map the dates to Vietnamese weekdays
-      const vietnameseDates = date.map((day) => dayMapping[day] || day); // Translate dates to Vietnamese
-
+      // Trả về mảng khóa học
       return vietnameseDates.map((day, index) => ({
-        courseID: courseID,
-        courseName: courseName,
-        credits: creditsValue,  // Use number for credits
-        date: [day],  // Wrap the day into an array
-        startPeriod: [startPeriod[index]],  // Wrap startPeriod into an array
-        periodsCount: [periodsCount[index]],  // Wrap periodsCount into an array
-        location: [location[index]],  // Wrap location into an array
-        lecturer: [lecturer[index]],  // Wrap lecturer into an array
-        isActive: isActive,
-        isLab: isLab, // Add isLab to each course
-
+        courseID,
+        courseName,
+        credits: creditsValue,
+        date: [day],
+        startPeriod: [startPeriod[index]],
+        periodsCount: [periodsCount[index]],
+        location: [location[index]],
+        lecturer: [lecturer[index]],
+        isActive,
+        isLab,
       }));
     });
 
-    // Additional Debugging: Check listOfCourses before API call
-    console.log("List of Courses to be sent:", listOfCourses);
+    // Kiểm tra nếu không có khóa học hợp lệ
+    if (listOfCourses.length === 0) {
+      toast.warn("No valid courses found to save.", { autoClose: 3000 });
+      return;
+    }
 
+    // Tạo payload API
     const payload: scheduleRequest = {
       studentId: studentId,
-      templateId: null,  // Ensure templateId is not null unless allowed by type
+      templateId: null,
       // listOfCourses,
     };
 
@@ -112,16 +131,12 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
       const newTemplateId = response.newTemplateId;
       if (newTemplateId) {
         console.log("Received templateId:", newTemplateId);
-        // Store in localStorage as a string
         localStorage.setItem("templateId", newTemplateId.toString());
-
-        // Inform the user
         toast.success(
             `Schedule created successfully! Template ID: ${newTemplateId}`,
             { autoClose: 3000 }
         );
       } else {
-        // Handle the case where newTemplateId is not present
         toast.error("Schedule created, but no Template ID was returned.", {
           autoClose: 3000,
         });
