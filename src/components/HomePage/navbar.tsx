@@ -1,15 +1,36 @@
-import { NavLink } from "react-router-dom";
-import { useState } from "react";
+import { Link, NavLink } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import viteLogo from "../../assets/logo.png";
+import viteLogo from '../../assets/logo.png';
+import { Api } from "../../utils/api"; // Adjust the import path according to your project structure
+import { FiLogOut } from "react-icons/fi"; // Import logout icon
 
-interface NavbarProps {
-    onSignIn: () => void;
-    onRegister: () => void;
-}
+const Navbar = () => {
+    const [user, setUser] = useState<{ name: string } | null>(null); // State to store user info
+    const [visible, setVisible] = useState(false); // State to manage sidebar visibility
 
-const Navbar: React.FC<NavbarProps> = ({ onSignIn, onRegister }) => {
-    const [visible, setVisible] = useState(false); // For mobile menu visibility
+    const api = new Api(); // Create an instance of the Api class
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            const userId = localStorage.getItem("user_id"); // Ensure the ID is stored as a string
+            if (userId) {
+                try {
+                    const userData = await api.findUserById(Number(userId)); // Convert to number
+                    setUser(userData); // Set user state with fetched data
+                } catch (error) {
+                    console.error("Failed to fetch user:", error);
+                    setUser(null); // Reset user state on failure
+                }
+            }
+        };
+        fetchUser();
+    }, []);
+
+    const handleLogout = () => {
+        localStorage.removeItem("user_id"); // Clear user ID from localStorage
+        setUser(null); // Reset user state
+    };
 
     return (
         <motion.div
@@ -22,7 +43,7 @@ const Navbar: React.FC<NavbarProps> = ({ onSignIn, onRegister }) => {
                 <div className="container mx-auto flex items-center justify-between gap-4 border w-full px-8 py-4 rounded-lg shadow-lg">
                     {/* Logo Section */}
                     <div className="flex items-center space-x-3">
-                        <img src={viteLogo} alt="Vite Logo" style={{ height: "50px" }} />
+                        <img src={viteLogo} alt="Vite Logo" style={{ height: '50px' }} />
                         <p className="text-xl tracking-wide font-poppins font-bold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent drop-shadow-lg">
                             IU Scheduler
                         </p>
@@ -47,20 +68,35 @@ const Navbar: React.FC<NavbarProps> = ({ onSignIn, onRegister }) => {
                         </NavLink>
                     </ul>
 
-                    {/* Register and Sign In Buttons */}
+                    {/* User Info or Register/Sign In Buttons */}
                     <div className="flex items-center gap-6">
-                        <button
-                            onClick={onRegister}
-                            className="hidden sm:block px-8 py-2 rounded-full text-white text-center cursor-pointer transition transform hover:scale-105 bg-gradient-to-r from-blue-400 to-blue-600 shadow-lg hover:shadow-xl hover:from-blue-500 hover:to-blue-700"
-                        >
-                            Register
-                        </button>
-                        <button
-                            onClick={onSignIn}
-                            className="hidden sm:block px-8 py-2 rounded-full text-white text-center cursor-pointer transition transform hover:scale-105 bg-gradient-to-r from-blue-500 to-blue-700 shadow-lg hover:shadow-xl hover:from-blue-600 hover:to-blue-800"
-                        >
-                            Sign In
-                        </button>
+                        {user ? (
+                            // Display user's name and logout icon if logged in
+                            <div className="flex items-center gap-4">
+                                <p className="font-bold text-gray-700">{user.name}</p>
+                                <FiLogOut
+                                    onClick={handleLogout}
+                                    className="text-red-500 text-2xl cursor-pointer transition transform hover:scale-110"
+                                    title="Logout" // Tooltip for better accessibility
+                                />
+                            </div>
+                        ) : (
+                            // Show Register and Sign In buttons if not logged in
+                            <>
+                                <Link
+                                    to="/register"
+                                    className="hidden sm:block px-8 py-2 rounded-full text-white text-center cursor-pointer transition transform hover:scale-105 bg-gradient-to-r from-blue-400 to-blue-600 shadow-lg hover:shadow-xl hover:from-blue-500 hover:to-blue-700"
+                                >
+                                    Register
+                                </Link>
+                                <Link
+                                    to="/login"
+                                    className="hidden sm:block px-8 py-2 rounded-full text-white text-center cursor-pointer transition transform hover:scale-105 bg-gradient-to-r from-blue-500 to-blue-700 shadow-lg hover:shadow-xl hover:from-blue-600 hover:to-blue-800"
+                                >
+                                    Sign In
+                                </Link>
+                            </>
+                        )}
 
                         {/* Hamburger Menu Icon for Mobile */}
                         <img
@@ -72,7 +108,7 @@ const Navbar: React.FC<NavbarProps> = ({ onSignIn, onRegister }) => {
                     </div>
                 </div>
 
-                {/* Sidebar menu for mobile */}
+                {/* Sidebar Menu for Mobile */}
                 <div
                     className={`fixed top-0 right-0 h-full bg-white shadow-lg transition-transform duration-300 ${
                         visible ? "translate-x-0" : "translate-x-full"
@@ -84,11 +120,7 @@ const Navbar: React.FC<NavbarProps> = ({ onSignIn, onRegister }) => {
                             onClick={() => setVisible(false)}
                             className="flex items-center gap-4 p-4 cursor-pointer border-b"
                         >
-                            <img
-                                className="h-4 rotate-180"
-                                src={viteLogo}
-                                alt="Back"
-                            />
+                            <img className="h-4 rotate-180" src={viteLogo} alt="Back" />
                             <p>Back</p>
                         </div>
 
@@ -116,26 +148,24 @@ const Navbar: React.FC<NavbarProps> = ({ onSignIn, onRegister }) => {
                         </NavLink>
 
                         {/* Register and Sign In Buttons for Mobile */}
-                        <div className="mt-auto p-6">
-                            <button
-                                onClick={() => {
-                                    setVisible(false);
-                                    onRegister();
-                                }}
-                                className="block w-full mb-4 px-4 py-2 rounded-full text-white text-center cursor-pointer transition transform hover:scale-105 bg-gradient-to-r from-blue-400 to-blue-600 shadow-lg hover:shadow-xl hover:from-blue-500 hover:to-blue-700"
-                            >
-                                Register
-                            </button>
-                            <button
-                                onClick={() => {
-                                    setVisible(false);
-                                    onSignIn();
-                                }}
-                                className="block w-full px-4 py-2 rounded-full text-white text-center cursor-pointer transition transform hover:scale-105 bg-gradient-to-r from-blue-500 to-blue-700 shadow-lg hover:shadow-xl hover:from-blue-600 hover:to-blue-800"
-                            >
-                                Sign In
-                            </button>
-                        </div>
+                        {!user && (
+                            <div className="mt-auto p-6">
+                                <Link
+                                    to="/register"
+                                    onClick={() => setVisible(false)}
+                                    className="block w-full mb-4 px-4 py-2 rounded-full text-white text-center cursor-pointer transition transform hover:scale-105 bg-gradient-to-r from-blue-400 to-blue-600 shadow-lg hover:shadow-xl hover:from-blue-500 hover:to-blue-700"
+                                >
+                                    Register
+                                </Link>
+                                <Link
+                                    to="/login"
+                                    onClick={() => setVisible(false)}
+                                    className="block w-full px-4 py-2 rounded-full text-white text-center cursor-pointer transition transform hover:scale-105 bg-gradient-to-r from-blue-500 to-blue-700 shadow-lg hover:shadow-xl hover:from-blue-600 hover:to-blue-800"
+                                >
+                                    Sign In
+                                </Link>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

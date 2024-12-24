@@ -14,7 +14,12 @@ interface FocusedInput {
     student_id: boolean;
 }
 
-const Register: React.FC = () => {
+interface RegisterProps {
+    onRegisterSuccess: () => void;
+}
+
+const Register: React.FC<RegisterProps> = ({ onRegisterSuccess }) => {
+
     const [email, setEmail] = useState<string>('');
     const [name, setName] = useState<string>('');
     const [password, setPassword] = useState<string>('');
@@ -87,9 +92,11 @@ const Register: React.FC = () => {
             toast.success("Registration successful!");
 
             setTimeout(() => {
+                setIsModalOpen(false);
                 setLoading(false);
+                onRegisterSuccess();
                 navigate("/login"); // Redirect to login page
-            }, 3000); // Wait for 3 seconds before navigating
+            }, 2000); // Wait for 3 seconds before navigating
         } catch (error: any) {
             console.error("Registration failed:", error.response?.data || error.message);
             const errorMessage = error.response?.data?.message || "Registration failed. Please try again.";

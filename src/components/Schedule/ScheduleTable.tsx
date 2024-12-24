@@ -17,6 +17,7 @@ import Register from "../Login_Register/register.tsx";
 interface ScheduleTableProps {
   completeSchedule: CompleteSchedule;
   center: boolean;
+
 }
 
 const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {

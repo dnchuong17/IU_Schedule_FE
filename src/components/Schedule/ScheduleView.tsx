@@ -184,14 +184,14 @@ const ScheduleView: React.FC = () => {
       const rect = (event.target as HTMLElement).getBoundingClientRect();
       const response = await api.getDeadline(entry.course_value_id);
       setPopupData({
-        position: { top: rect.bottom + window.scrollY, left: rect.left + window.scrollX },
+        position: {top: rect.bottom + window.scrollY, left: rect.left + window.scrollX},
         deadlines: response?.deadlines || [],
       });
-    } catch (error) {
-      toast.error("Failed to fetch deadlines for this course!", {
-        autoClose: 3000,
-      });
-      setPopupData(null);
+      } catch (error) {
+      //   toast.error("Failed to fetch deadlines for this course!", {
+      //     autoClose: 3000,
+      //   });
+      //   setPopupData(null);
     }
   };
 

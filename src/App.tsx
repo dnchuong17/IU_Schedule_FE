@@ -35,7 +35,7 @@ const NotFound = () => {
     );
 };
 
-function App() {
+const App: React.FC = () => {
     const [isLoginOpen, setIsLoginOpen] = useState(false);
     const [isRegisterOpen, setIsRegisterOpen] = useState(false);
 
@@ -52,17 +52,33 @@ function App() {
                         />
                     }
                 >
-                    <Route path="/" element={<Navigate to="/scheduleView" replace />} />
+                    <Route path="/" element={<Navigate to="/schedule" replace />} />
                     <Route path="/deadlinePopUp" element={<DeadlinePopUp />} />
                     <Route path="/notificationPopUp" element={<NotificationPopUp />} />
+                    <Route
+                        path="/login"
+                        element={
+                            <Login
+                                onLoginSuccess={() => setIsLoginOpen(false)}
+                            />
+                        }
+                    />
+                    <Route
+                        path="/register"
+                        element={
+                            <Register
+                                onRegisterSuccess={() => setIsRegisterOpen(false)}
+                            />
+                        }
+                    />
+
+
+
+
                     <Route
                         path="/schedule"
                         element={
                             <Schedule
-                                isLoginOpen={isLoginOpen}
-                                isRegisterOpen={isRegisterOpen}
-                                closeLogin={() => setIsLoginOpen(false)}
-                                closeRegister={() => setIsRegisterOpen(false)}
                             />
                         }
                     />
@@ -74,8 +90,16 @@ function App() {
             </Routes>
 
             {/* Global Modals for Login and Register */}
-            {isLoginOpen && <Login onLoginSuccess={() => setIsLoginOpen(false)} />}
-            {isRegisterOpen && <Register onRegisterSuccess={() => setIsRegisterOpen(false)} />}
+            {isLoginOpen && (
+                <Login
+                    onLoginSuccess={() => setIsLoginOpen(false)}
+                />
+            )}
+            {isRegisterOpen && (
+                <Register
+                    onRegisterSuccess={() => setIsRegisterOpen(false)}
+                />
+            )}
         </Router>
     );
 }

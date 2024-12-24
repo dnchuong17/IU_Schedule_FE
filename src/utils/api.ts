@@ -9,7 +9,8 @@ export class Api {
 
   constructor() {
     this.axiosObject = axios.create({
-      baseURL: "https://iuscheduler-production.up.railway.app/api",
+      // baseURL: "https://iuscheduler-production.up.railway.app/api",
+      baseURL: "http://localhost:3000/api",
       withCredentials: true,
     });
   }
@@ -34,7 +35,7 @@ export class Api {
       // Store student_id
       if (result1.data.student_id) {
         localStorage.setItem("student_id", result1.data.student_id); // Store student_id for later use
-        console.log("Student ID ne:", result1.data.student_id);
+        console.log("Student ID:", result1.data.student_id);
       }
 
       return result1.data;
@@ -187,6 +188,17 @@ export class Api {
       return response.data;
     } catch (error) {
       console.error("Error fetching deadlines: ", error);
+      throw error;
+    }
+  }
+
+  async findUserById (user_id: number) {
+    try {
+      const response = await this.axiosObject.get(`/user/${user_id}`);
+      console.log("Get user successfully: ", response.data);
+      return response.data;
+    } catch (error) {
+      console.log("Error getting user: ", error);
       throw error;
     }
   }
