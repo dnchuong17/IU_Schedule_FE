@@ -6,18 +6,70 @@ import { scheduleRequest } from "@/utils/request/scheduleRequest";
 
 export class Api {
   private axiosObject: AxiosInstance;
+  private isRefreshing: boolean = false;
+  private refreshSubscribers: Array<(token: string) => void> = [];
 
   constructor() {
     this.axiosObject = axios.create({
       baseURL: "https://iuscheduler-production.up.railway.app/api",
-      // baseURL: "http://localhost:3000/api",
       withCredentials: true,
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
+
+    this.setupInterceptors();
   }
 
+  private setupInterceptors() {
+    this.axiosObject.interceptors.response.use(
+        (response) => response,
+        async (error) => {
+          const originalRequest = error.config;
+
+          if (error.response?.status === 401 && !originalRequest._retry) {
+            if (this.isRefreshing) {
+              return new Promise((resolve) => {
+                this.refreshSubscribers.push((token: string) => {
+                  originalRequest.headers["Authorization"] = `Bearer ${token}`;
+                  resolve(this.axiosObject(originalRequest));
+                });
+              });
+            }
+
+            originalRequest._retry = true;
+            this.isRefreshing = true;
+
+            try {
+              const { data } = await axios.post(
+                  "https://iuscheduler-production.up.railway.app/api/auth/refresh",
+                  {},
+                  { withCredentials: true }
+              );
+
+              const newAccessToken = data.access_token;
+
+              localStorage.setItem("accessToken", newAccessToken);
+
+              this.axiosObject.defaults.headers["Authorization"] = `Bearer ${newAccessToken}`;
+
+              this.refreshSubscribers.forEach((callback) => callback(newAccessToken));
+              this.refreshSubscribers = [];
+
+              return this.axiosObject(originalRequest);
+            } catch (refreshError) {
+              console.error("Token refresh failed:", refreshError);
+              this.refreshSubscribers = [];
+              throw refreshError;
+            } finally {
+              this.isRefreshing = false;
+            }
+          }
+
+          return Promise.reject(error);
+        }
+    );
+  }
 
   getAxiosObject() {
     return this.axiosObject;
