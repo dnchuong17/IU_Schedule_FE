@@ -13,10 +13,10 @@ import Login from "./components/Login_Register/login";
 import Register from "./components/Login_Register/register";
 
 // Layout component that includes Header and Footer
-const DefaultLayout = ({ onSignIn, onRegister }: any) => {
+const DefaultLayout = ({ onSignIn, onRegister, isLogin }: any) => {
     return (
         <>
-            <Navbar onSignIn={onSignIn} onRegister={onRegister} />
+            <Navbar onSignIn={onSignIn} onRegister={onRegister} isLogin={isLogin} />
             <Outlet />
             <Footer />
         </>
@@ -71,17 +71,7 @@ const App: React.FC = () => {
                             />
                         }
                     />
-
-
-
-
-                    <Route
-                        path="/schedule"
-                        element={
-                            <Schedule
-                            />
-                        }
-                    />
+                    <Route path="/schedule" element={<Schedule />} />
                     <Route path="/scheduleView" element={<ScheduleView />} />
                     <Route path="/filters" element={<Filters />} />
                     <Route path="/timeTable" element={<Timetable />} />
