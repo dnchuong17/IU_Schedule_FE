@@ -281,7 +281,7 @@ export function compressCoursesMap(coursesMap: CoursesMap) {
 export function decompressCoursesStr(
     coursesStr: string,
     isActive: boolean = false
-) {
+): CoursesMap {
   const coursesMap: CoursesMap = new Map();
   try {
     const coursesArr = coursesStr.split(/!/);
@@ -290,30 +290,38 @@ export function decompressCoursesStr(
       const classesArr = courseArr.at(-1)?.split(/\(/);
       if (!classesArr)
         throw new Error("Failed to parse: The given URL is invalid.");
+
       const classesMap: ClassesMap = new Map();
       coursesMap.set(courseArr[0], {
         id: courseArr[0],
         name: courseArr[1],
         classesMap,
       });
+
       for (const classStr of classesArr) {
         const classArr = classStr.split(/\)/);
         const classId = courseArr[0] + classArr[0]; // courseID + group + practice
+
+        // Determine if the class is a lab
+        const isLab = classArr[0].toLowerCase().includes("lab");
+
+        // Add the class object to the map
         classesMap.set(classId, {
           id: classId,
           courseID: courseArr[0],
           courseName: courseArr[1],
-          isActive: isActive,
+          isActive,
           credits: "3",
           date: classArr[1].split("_") as WeekDate[],
           startPeriod: classArr[2].split("_").map((v) => Number(v)),
           periodsCount: classArr[3].split("_").map((v) => Number(v)),
           location: classArr[4].split("_"),
           lecturer: classArr[5].split("_"),
+          isLab, // Add the isLab property
         });
       }
     }
-  } catch {
+  } catch (error) {
     throw new Error("Failed to parse: The given URL is invalid.");
   }
   return coursesMap;
