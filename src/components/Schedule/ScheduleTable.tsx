@@ -53,8 +53,7 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
             ? classObject.location[index] || classObject.location[0]
             : classObject.location;
 
-        const isLab =
-            typeof location === "string" && location.includes("LA");
+        const isLab = typeof location === "string" && location.includes("LA");
 
         return {
           courseID: classObject.courseID,
@@ -62,8 +61,7 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
           credits: parseInt(classObject.credits, 10),
           date: translateDayToVietnamese(date), // Áp dụng hàm chuyển đổi
           startPeriod: classObject.startPeriod[index] || classObject.startPeriod[0],
-          periodsCount:
-              classObject.periodsCount[index] || classObject.periodsCount[0],
+          periodsCount: classObject.periodsCount[index] || classObject.periodsCount[0],
           location: location,
           lecturer: Array.isArray(classObject.lecturer)
               ? classObject.lecturer[index] || classObject.lecturer[0]
@@ -75,15 +73,18 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
       });
     });
 
+    // Sắp xếp theory trước lab
+    const sortedCourses = listOfCourses.sort((a, b) => {
+      return a.isLab === b.isLab ? 0 : a.isLab ? 1 : -1;
+    });
 
-
-    // Debugging: Check the transformed list of courses
-    console.log("Transformed List of Courses:", listOfCourses);
+    // Debugging: Check the sorted list of courses
+    console.log("Sorted List of Courses:", sortedCourses);
 
     const payload: scheduleRequest = {
       studentId: studentId,
       templateId: null,
-      listOfCourses,
+      listOfCourses: sortedCourses,
     };
 
     console.log("API Payload:", payload);

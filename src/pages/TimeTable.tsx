@@ -29,7 +29,9 @@ type ScheduleEntry = {
   start_period: string;
   periods: number;
   course_name: string;
-  location: string;
+  theory_course_value_id: string | null;
+  lab_location: string;
+  theory_location: string;
 };
 
 const Timetable: React.FC = () => {
@@ -74,11 +76,12 @@ const Timetable: React.FC = () => {
         return;
       }
 
-      // Get the first templateId from the array
-      const firstTemplateId = user.scheduler_template_ids[0];
-      console.log("Using Template ID:", firstTemplateId);
+      // Lấy templateId ở vị trí cuối cùng trong mảng
+      const lastTemplateId =
+          user.scheduler_template_ids[user.scheduler_template_ids.length - 1];
+      console.log("Using Template ID:", lastTemplateId);
 
-      const template = await api.getTemplateBySchedulerId(firstTemplateId);
+      const template = await api.getTemplateBySchedulerId(lastTemplateId);
 
       if (!template || !template.length) {
         toast.error("No schedule data found for the selected template!", {
@@ -98,20 +101,21 @@ const Timetable: React.FC = () => {
   };
 
 
+
   const findSubject = (
-    day: string,
-    lessonIndex: number
+      day: string,
+      lessonIndex: number
   ): ScheduleEntry | null => {
     return (
-      scheduleData.find((item) => {
-        const mappedDay = dayMapping[item.days_in_week];
-        const startPeriod = parseInt(item.start_period, 10);
-        return (
-          mappedDay === day &&
-          lessonIndex + 1 >= startPeriod &&
-          lessonIndex + 1 < startPeriod + item.periods
-        );
-      }) || null
+        scheduleData.find((item) => {
+          const mappedDay = dayMapping[item.days_in_week];
+          const startPeriod = parseInt(item.start_period, 10);
+          return (
+              mappedDay === day &&
+              lessonIndex + 1 >= startPeriod &&
+              lessonIndex + 1 < startPeriod + item.periods
+          );
+        }) || null
     );
   };
 
@@ -134,7 +138,7 @@ const Timetable: React.FC = () => {
 
         <div>
           <h1 className="text-3xl font-bold mb-4 text-blue-600">
-            Your Timetable
+            Your Sub - Timetable
           </h1>
           {loading ? (
               <p className="text-blue-500 text-xl">Loading your schedule...</p>
@@ -149,7 +153,7 @@ const Timetable: React.FC = () => {
                           key={index}
                           className={`text-white font-bold text-center p-2 border ${
                               getCurrentDayIndex() === index
-                                  ? "bg-blue-700"
+                                  ? "bg-blue-500"
                                   : "bg-blue-500"
                           }`}
                       >
@@ -177,7 +181,12 @@ const Timetable: React.FC = () => {
                                 >
                                   <strong>{entry.course_name}</strong>
                                   <br/>
-                                  <em>Room: {entry.location}</em>
+                                  <em>
+                                    Room:{" "}
+                                    {entry.theory_course_value_id === null
+                                        ? entry.lab_location
+                                        : entry.theory_location}
+                                  </em>
                                 </div>
 
                             );
