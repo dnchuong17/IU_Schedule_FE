@@ -19,6 +19,18 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
   const rowsProps: CellProps[][] = populateSchedule(completeSchedule);
 
   // src/components/Schedule/ScheduleTable.ts
+  const translateDayToVietnamese = (day: string): string => {
+    const dayMapping: { [key: string]: string } = {
+      Mon: "Thứ Hai",
+      Tue: "Thứ Ba",
+      Wed: "Thứ Tư",
+      Thu: "Thứ Năm",
+      Fri: "Thứ Sáu",
+      Sat: "Thứ Bảy",
+      Sun: "Chủ Nhật",
+    };
+    return dayMapping[day] || day; // Trả về tên gốc nếu không khớp
+  };
 
 
 
@@ -48,7 +60,7 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
           courseID: classObject.courseID,
           courseName: classObject.courseName,
           credits: parseInt(classObject.credits, 10),
-          date: date,
+          date: translateDayToVietnamese(date), // Áp dụng hàm chuyển đổi
           startPeriod: classObject.startPeriod[index] || classObject.startPeriod[0],
           periodsCount:
               classObject.periodsCount[index] || classObject.periodsCount[0],
