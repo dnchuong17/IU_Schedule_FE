@@ -43,8 +43,18 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
     // Map the courses to the required format
     const listOfCourses = completeSchedule.flatMap((classObj) => {
       const { classObject } = classObj;
-      const { courseID, courseName, credits, date, startPeriod, periodsCount, location, lecturer, isActive } = classObject;
-
+      const {
+        courseID,
+        courseName,
+        credits,
+        date,
+        startPeriod,
+        periodsCount,
+        location,
+        lecturer,
+        isActive,
+        isLab,
+      } = classObject;
       // Ensure credits is a number
       const creditsValue = Number(credits);  // Convert credits to a number if it's a string
 
@@ -78,6 +88,8 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
         location: [location[index]],  // Wrap location into an array
         lecturer: [lecturer[index]],  // Wrap lecturer into an array
         isActive: isActive,
+        isLab: isLab, // Add isLab to each course
+
       }));
     });
 
@@ -194,62 +206,74 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
       </div>
   );
 };
-        function populateSchedule(completeSchedule: CompleteSchedule) {
-        const rowsProps: CellProps[][] = initTable();
+function populateSchedule(completeSchedule: CompleteSchedule) {
+  const rowsProps: CellProps[][] = initTable();
 
-        // Map English days to Vietnamese days
-        const dayMapping: {[key: string]: string} = {
-        Mon: "Thứ Hai",
-        Tue: "Thứ Ba",
-        Wed: "Thứ Tư",
-        Thu: "Thứ Năm",
-        Fri: "Thứ Sáu",
-        Sat: "Thứ Bảy",
-        Sun: "Chủ Nhật",
-      };
+  // Map English days to Vietnamese days
+  const dayMapping: { [key: string]: string } = {
+    Mon: "Thứ Hai",
+    Tue: "Thứ Ba",
+    Wed: "Thứ Tư",
+    Thu: "Thứ Năm",
+    Fri: "Thứ Sáu",
+    Sat: "Thứ Bảy",
+    Sun: "Chủ Nhật",
+  };
 
-        for (const {classObject, color} of completeSchedule) {
-        const {courseName, startPeriod, periodsCount, location, lecturer} = classObject;
-        const dates = _extractDates(classObject); // use dates array to know if we need 1 or 2 rows.
+  for (const { classObject, color } of completeSchedule) {
+    const {
+      courseName,
+      startPeriod,
+      periodsCount,
+      location,
+      lecturer,
+      date,
+    } = classObject;
 
-        dates.forEach((date, index) => {
-        // Convert the English date to Vietnamese date using dayMapping
-        const vietnameseDate = dayMapping[date] || date;
+    // Kiểm tra nếu có nhiều giá trị khác nhau trong cùng một lớp
+    if (
+        new Set(date).size > 1 ||
+        new Set(location).size > 1 ||
+        new Set(lecturer).size > 1 ||
+        new Set(startPeriod).size > 1 ||
+        new Set(periodsCount).size > 1
+    ) {
+      classObject.isLab = true;
+    }
 
-        // Ensure startPeriod[index] and periodsCount[index] are numbers
-        const startPeriodValue = Number(startPeriod[index]);
-        const periodsCountValue = Number(periodsCount[index]);
+    const dates = _extractDates(classObject);
 
-        for (let row = 0; row < periodsCountValue; row++) {
+    dates.forEach((date, index) => {
+      const vietnameseDate = dayMapping[date] || date;
+
+      const startPeriodValue = Number(startPeriod[index]);
+      const periodsCountValue = Number(periodsCount[index]);
+
+      for (let row = 0; row < periodsCountValue; row++) {
         const oldCellProps = rowsProps[startPeriodValue - 1 + row][date + 1];
         let newCellProps: CellProps;
         if (row == 0) {
-        // Edit top cell and set rowSpan
-        const cellContent = (
-        <div className="flex flex-col gap-2">
-        <p className="break-words text-sm font-bold">{courseName}</p>
-  <p className="break-words text-xs">
-    {lecturer[index]}
-    <br/>
-    {location[index]}
-  </p>
-</div>
-)
-  ;
-  newCellProps = {
-    children: cellContent,
-    className: `px-1.5 ${color}`,
-    rowSpan: periodsCountValue,
-  };
-} else
-  {
-    // Hide all bottom cells to top cell to span downwards
+          const cellContent = (
+              <div className="flex flex-col gap-2">
+                <p className="break-words text-sm font-bold">{courseName}</p>
+                <p className="break-words text-xs">
+                  {lecturer[index]}
+                  <br />
+                  {location[index]}
+                </p>
+              </div>
+          );
+          newCellProps = {
+            children: cellContent,
+            className: `px-1.5 ${color}`,
+            rowSpan: periodsCountValue,
+          };
+        } else {
           newCellProps = {
             ...oldCellProps,
             className: "hidden",
           };
         }
-        // @ts-ignore
         rowsProps[startPeriodValue - 1 + row][vietnameseDate + 1] = newCellProps;
       }
     });
@@ -257,6 +281,7 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
 
   return rowsProps;
 }
+
 
 
 function initTable() {
