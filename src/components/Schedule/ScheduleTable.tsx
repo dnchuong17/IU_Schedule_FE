@@ -87,7 +87,7 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
     const payload: scheduleRequest = {
       studentId: studentId,
       templateId: null,  // Ensure templateId is not null unless allowed by type
-      listOfCourses,
+      // listOfCourses,
     };
 
     console.log("API Payload:", payload);

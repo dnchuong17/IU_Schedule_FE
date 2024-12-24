@@ -5,7 +5,12 @@ import viteLogo from '../../assets/logo.png';
 import { Api } from "../../utils/api"; // Adjust the import path according to your project structure
 import { FiLogOut } from "react-icons/fi"; // Import logout icon
 
-const Navbar = () => {
+interface NavbarProps {
+    onSignIn: () => void;
+    onRegister: () => void;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ onSignIn, onRegister }) => {
     const [user, setUser] = useState<{ name: string } | null>(null); // State to store user info
     const [visible, setVisible] = useState(false); // State to manage sidebar visibility
 
@@ -83,18 +88,18 @@ const Navbar = () => {
                         ) : (
                             // Show Register and Sign In buttons if not logged in
                             <>
-                                <Link
-                                    to="/register"
+                                <button
+                                    onClick={onRegister}
                                     className="hidden sm:block px-8 py-2 rounded-full text-white text-center cursor-pointer transition transform hover:scale-105 bg-gradient-to-r from-blue-400 to-blue-600 shadow-lg hover:shadow-xl hover:from-blue-500 hover:to-blue-700"
                                 >
                                     Register
-                                </Link>
-                                <Link
-                                    to="/login"
+                                </button>
+                                <button
+                                    onClick={onSignIn}
                                     className="hidden sm:block px-8 py-2 rounded-full text-white text-center cursor-pointer transition transform hover:scale-105 bg-gradient-to-r from-blue-500 to-blue-700 shadow-lg hover:shadow-xl hover:from-blue-600 hover:to-blue-800"
                                 >
                                     Sign In
-                                </Link>
+                                </button>
                             </>
                         )}
 
