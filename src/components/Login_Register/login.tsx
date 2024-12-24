@@ -43,6 +43,7 @@ const Login: React.FC<LoginProps> = () => {
           setIsModalOpen(false); // Close the modal
           navigate("/schedule"); // Navigate to /schedule
         }, 2000); // Close modal after 2 seconds
+        window.location.reload();
       } else {
         toast.error("Account does not exist.");
       }
