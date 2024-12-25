@@ -231,6 +231,10 @@ export function mapColor(coursesMap: CoursesMap) {
       ...courseObject,
       color: BG_COLOR_PALETTE[colorCounter],
     });
+    console.log(
+      `Assigned color ${BG_COLOR_PALETTE[colorCounter]} to course ${courseKey}`
+    );
+
     colorCounter = (colorCounter + 1) % BG_COLOR_PALETTE.length;
   }
   return newMap;
