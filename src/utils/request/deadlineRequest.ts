@@ -17,4 +17,5 @@ export class DeadlineRequest {
   description?: string;
   date?: string;
   courseValueId?: number;
+  isActive?: boolean;
 }

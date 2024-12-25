@@ -225,6 +225,16 @@ export class Api {
       throw error;
     }
   }
+  async getNoteById(id: number) {
+    try {
+      const response = await this.axiosObject.get(`/note/${id}`);
+      console.log("Get note successfully: ", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error getting note:", error);
+      throw error;
+    }
+  }
 
   async createNote(content: string, courseValueId: number) {
     try {
@@ -249,6 +259,31 @@ export class Api {
       return response.data;
     } catch (error) {
       console.error("Error fetching deadlines: ", error);
+      throw error;
+    }
+  }
+  async getDeadlineById(id: number) {
+    try {
+      const response = await this.axiosObject.get(`/deadline/${id}`);
+      console.log("Get deadline by ID successfully: ", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching deadline by ID: ", error);
+      throw error;
+    }
+  }
+  async activeAlert(id: string) {
+    try {
+      const response = await this.axiosObject.patch(`/deadline/detail/${id}`, {
+        isActive: true,
+      });
+      console.log("Alert activated successfully:", response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error(
+        "Failed to activate alert:",
+        error.response?.data || error.message
+      );
       throw error;
     }
   }
