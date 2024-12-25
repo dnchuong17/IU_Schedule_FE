@@ -33,10 +33,11 @@ type ScheduleEntry = {
   start_period: string;
   periods: number;
   course_name: string;
-  theory_course_value_id: string | null;
+  theory_course_value_id: number | null;
   lab_location: string;
   theory_location: string;
   course_value_id: number;
+  lab_course_value_id: number | null;
 };
 type Note = {
   id: number;
@@ -163,7 +164,7 @@ const ScheduleView: React.FC = () => {
   const handleCourseClick = (entry: ScheduleEntry, event: React.MouseEvent) => {
     const rect = (event.target as HTMLElement).getBoundingClientRect();
     setPopupPosition({
-      top: rect.bottom + window.scrollY,
+      top: rect.top + window.scrollY,
       left: rect.left + window.scrollX,
     });
     setActivePopup({ type: null, course: entry });
@@ -188,11 +189,11 @@ const ScheduleView: React.FC = () => {
   };
 
   //Hover to show deadline
-  const fetchAndShowNotes = async (id: number) => {
+  const fetchAndShowNotes = async (entry: ScheduleEntry) => {
     try {
-      const newNoteId = localStorage.getItem("newNoteId");
-      const noteId = newNoteId ? parseInt(newNoteId) : id;
-      const response = await api.getNoteById(noteId);
+      const courseValueId =
+        entry.theory_course_value_id || entry.lab_course_value_id || 0;
+      const response = await api.getNoteByCourseValueId(courseValueId);
       console.log("Fetched note:", response);
       setPopupNote({
         position: {
@@ -283,7 +284,7 @@ const ScheduleView: React.FC = () => {
                           className="p-2 border bg-yellow-100 text-sm font-medium text-gray-800 cursor-pointer"
                           style={{ gridRow: `span ${entry.periods}` }}
                           onClick={(event) => handleCourseClick(entry, event)}
-                          onMouseEnter={() => fetchAndShowNotes(entry.id)} // Pass the correct ID
+                          onMouseEnter={() => fetchAndShowNotes(entry)} // Pass the correct ID
                           onMouseLeave={() => setPopupNote(null)} // Hide the popup on mouse leave
                         >
                           <strong>{entry.course_name}</strong>
@@ -362,8 +363,6 @@ const ScheduleView: React.FC = () => {
                 : 0
             }
             onClose={() => setActivePopup(null)}
-            fetchAndShowNotes={fetchAndShowNotes}
-            onNoteCreated={(id) => fetchAndShowNotes(id)} // Pass the callback
           />
         </div>
       )}
@@ -398,24 +397,23 @@ const ScheduleView: React.FC = () => {
               />
             </svg>
           </button>
-          <h3 className="text-lg font-bold mb-2">Notes</h3>
-          <ul>
-            {popupNote.notes.map((note) => (
-              <li key={note.id} className="mb-1">
-                <div className="flex justify-between">
-                  <strong>Lecture:</strong>{" "}
-                  {note.courseValues?.lecture || "N/A"}
-                </div>
-                <div>
-                  <strong>Location:</strong>{" "}
-                  {note.courseValues?.location || "N/A"}
-                </div>
-                <div>
-                  <strong>Content:</strong> {note.content}
-                </div>
-              </li>
-            ))}
-          </ul>
+          <div className="bg-white rounded-lg p-4 max-w-2xl mx-auto">
+            <h3 className="text-xl font-semibold text-blue-800 mb-4 border-b pb-2">
+              Notes
+            </h3>
+            <ul className="space-y-1">
+              {popupNote.notes.map((note) => (
+                <li
+                  key={note.id}
+                  className="p-3 rounded-md  hover:bg-gray-100 transition-colors duration-200"
+                >
+                  <div className="flex items-start">
+                    <span className="text-gray-700">{note.content}</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       )}
 

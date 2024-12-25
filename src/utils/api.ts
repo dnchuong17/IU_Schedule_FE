@@ -225,7 +225,7 @@ export class Api {
       throw error;
     }
   }
-  async getNoteById(id: number) {
+  async getNoteByCourseValueId(id: number) {
     try {
       const response = await this.axiosObject.get(`/note/${id}`);
       console.log("Get note successfully: ", response.data);
@@ -236,16 +236,29 @@ export class Api {
     }
   }
 
-  async createNote(content: string, courseValueId: number) {
+  // async createNote(content: string, courseValueId: number) {
+  //   try {
+  //     const response = await this.axiosObject.post("/note/create", {
+  //       content,
+  //       courseValueId,
+  //     });
+  //     console.log("Create note successfully: ", response.data);
+  //     return response.data;
+  //   } catch (error) {
+  //     console.error("Error creating note:", error);
+  //     throw error;
+  //   }
+  // }
+  async updateOneNote(content: string, courseValueId: number) {
     try {
-      const response = await this.axiosObject.post("/note/create", {
+      const response = await this.axiosObject.patch("/note/update", {
         content,
         courseValueId,
       });
-      console.log("Create note successfully: ", response.data);
+      console.log("Update note successfully: ", response.data);
       return response.data;
     } catch (error) {
-      console.error("Error creating note:", error);
+      console.log("Error updating note: ", error);
       throw error;
     }
   }
