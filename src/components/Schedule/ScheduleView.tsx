@@ -14,7 +14,7 @@ const daysOfWeek = [
   "Saturday",
   "Sunday",
 ];
-const lessonSlots = Array.from({ length: 16 }, (_, i) => `Lesson ${i + 1}`);
+// const lessonSlots = Array.from({ length: 16 }, (_, i) => `Lesson ${i + 1}`);
 
 const dayMapping: { [key: string]: string } = {
   "Thứ Hai": "Monday",
@@ -26,15 +26,38 @@ const dayMapping: { [key: string]: string } = {
   "Chủ Nhật": "Sunday",
 };
 
+const lessonSlots = Object.freeze([
+  "Lesson 1",
+  "Lesson 2",
+  "Lesson 3",
+  "Lesson 4",
+  "Lesson 5",
+  "Lesson 6",
+  "Lesson 7",
+  "Lesson 8",
+  "Lesson 9",
+  "Lesson 10",
+  "Lesson 11",
+  "Lesson 12",
+  "Lesson 13",
+  "Lesson 14",
+  "Lesson 15",
+  "Lesson 16",
+]);
+
+
+
 type ScheduleEntry = {
   days_in_week: string;
   start_period: string;
   periods: number;
   course_name: string;
-  theory_course_value_id: string | null;
+  theory_course_value_id: number | null;
   lab_location: string;
   theory_location: string;
   course_value_id: number;
+  lab_course_value_id: number | null;
+
 };
 
 type Deadline = {
