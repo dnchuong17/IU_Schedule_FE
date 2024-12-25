@@ -311,6 +311,23 @@ export class Api {
       throw error;
     }
   }
+
+  async getMainTemplateBySchedulerId(schedulerId: number) {
+    try {
+      const response = await this.axiosObject.get(
+          `/scheduleTemplate/main/${schedulerId}`
+      );
+      console.log("Get template successfully: ", response.data);
+      return response.data;
+    } catch (error: any) {
+      console.log(
+          "Failed to get template: ",
+          error.response?.data || error.message
+      );
+      throw error;
+    }
+  }
+
 }
 
 export default new Api();
