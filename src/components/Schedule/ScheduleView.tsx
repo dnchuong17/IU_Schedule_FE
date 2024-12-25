@@ -149,7 +149,7 @@ const ScheduleView: React.FC = () => {
 
       const allTemplates = await Promise.all(
           user.scheduler_template_ids.map((schedulerId: number) =>
-              api.getTemplateBySchedulerId(schedulerId)
+              api.getMainTemplateBySchedulerId(schedulerId)
           )
       );
 
