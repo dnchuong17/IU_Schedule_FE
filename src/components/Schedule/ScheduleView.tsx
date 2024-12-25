@@ -74,10 +74,10 @@ const ScheduleView: React.FC = () => {
     course: ScheduleEntry;
   } | null>(null);
 
-  const [, setPopupData] = useState<{
-    position: { top: number; left: number } | null;
-    deadlines: Deadline[] | null;
-  } | null>(null);
+  // const [, setPopupData] = useState<{
+  //   position: { top: number; left: number } | null;
+  //   deadlines: Deadline[] | null;
+  // } | null>(null);
 
   const [popupPosition, setPopupPosition] = useState<{
     top: number;
