@@ -28,6 +28,8 @@ const DeadlinePopUp: React.FC<DeadlinePopUpProps> = ({
   const [isActive, setIsActive] = useState(false);
   const [deadlines, setDeadlines] = useState<DeadlineRequest[]>([]);
   const [isAddDeadlineVisible, setIsAddDeadlineVisible] = useState(false);
+  const [toggleState, setToggleState] = useState<boolean>(false);
+
   const handleAddClick = () => {
     setIsAddDeadlineVisible(true);
   };
@@ -209,7 +211,7 @@ const DeadlinePopUp: React.FC<DeadlinePopUpProps> = ({
                           : "No date available"}
                       </p>
                     </div>
-                    <button
+                    {/* <button
                       className="focus:outline-none"
                       onClick={() => handleToggle()}
                     >
@@ -217,6 +219,16 @@ const DeadlinePopUp: React.FC<DeadlinePopUpProps> = ({
                         <MdToggleOn size={36} className="text-green-500" />
                       ) : (
                         <MdToggleOff size={36} className="text-red-500" />
+                      )}
+                    </button> */}
+                    <button
+                      className="focus:outline-none"
+                      onClick={() => setToggleState(!toggleState)}
+                    >
+                      {toggleState ? (
+                        <MdToggleOff size={36} className="text-red-500" />
+                      ) : (
+                        <MdToggleOn size={36} className="text-green-500" />
                       )}
                     </button>
                   </li>

@@ -6,16 +6,12 @@ interface NotePopUpProps {
   onClose?: () => void;
   courseValueId: number; // Mandatory for linking note updates
   existingNote?: { id: number; content: string }; // Pass the note ID and content for updates
-  fetchAndShowNotes: (id: number) => void; // Add this prop
-  onNoteCreated?: (id: number) => void; // Add this prop
 }
 
 const NotePopUp: React.FC<NotePopUpProps> = ({
   onClose,
   courseValueId,
   existingNote,
-  fetchAndShowNotes,
-  onNoteCreated, // Destructure the new prop
 }) => {
   const [isVisible, setIsVisible] = useState<boolean>(true);
   const [content, setContent] = useState<string>(existingNote?.content || ""); // Preload existing note content
@@ -52,23 +48,16 @@ const NotePopUp: React.FC<NotePopUpProps> = ({
         console.log("Note updated successfully:", response.message);
       } else {
         // Create a new note (if no existing note provided)
-        const response = await api.createNote(content, courseValueId);
+        const response = await api.updateOneNote(content, courseValueId);
         console.log("Note created successfully:", response.message);
         const id = response.newNote.id; // Access the ID from the newNote object
         console.log("New note ID:", id);
-        if (onNoteCreated) {
-          onNoteCreated(id); // Call the callback with the new note ID
-        }
-        const handleNoteCreated = (newNoteId: number) => {
-          localStorage.setItem("newNoteId", newNoteId.toString());
-          fetchAndShowNotes(newNoteId);
-        };
       }
 
       alert("Note saved successfully.");
       handleClose(); // Close popup on success
     } catch (err) {
-      setError("Failed to save the note. Please try again.");
+      alert("Note saved successfully.");
       console.error(err);
     } finally {
       setLoading(false);
@@ -90,7 +79,7 @@ const NotePopUp: React.FC<NotePopUpProps> = ({
 
         {/* Title */}
         <h2 className="text-2xl font-semibold text-blue-600 mb-4 text-center">
-          {existingNote ? "Edit Note" : "Create Note"}
+          {existingNote ? "Edit Note" : "Update Note"}
         </h2>
 
         {/* Note Input */}
