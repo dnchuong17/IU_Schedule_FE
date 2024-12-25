@@ -5,15 +5,18 @@ import viteLogo from '../../assets/logo.png';
 import { Api } from "../../utils/api"; // Adjust the import path according to your project structure
 import { FiLogOut } from "react-icons/fi"; // Import logout icon
 
+import {BarLoader}  from "react-spinners";
+
 interface NavbarProps {
     onSignIn: (onLoginSuccess: (user: { name: string }) => void) => void;
     onRegister: (onRegisterSuccess: (user: { name: string }) => void) => void;
+    isLogin: boolean;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ onSignIn, onRegister }) => {
+const Navbar: React.FC<NavbarProps> = ({ onSignIn, onRegister, isLogin }) => {
     const [user, setUser] = useState<{ name: string } | null>(null); // State to store user info
     const [visible, setVisible] = useState(false); // State to manage sidebar visibility
-
+    const [loginState, setLoginState] = useState<boolean>(false);
     const api = new Api(); // Create an instance of the Api class
 
     const fetchUser = async () => {
@@ -31,11 +34,15 @@ const Navbar: React.FC<NavbarProps> = ({ onSignIn, onRegister }) => {
 
     useEffect(() => {
         fetchUser();
+        const userId = localStorage.getItem("user_id");
+        if(userId) setLoginState(true);
+
     }, []); // Fetch user once when Navbar is mounted
 
     const handleLogout = () => {
         localStorage.removeItem("user_id"); // Clear user ID from localStorage
         setUser(null); // Reset user state
+        window.location.reload();
     };
 
     const handleLoginSuccess = (userData: { name: string }) => {
@@ -84,10 +91,10 @@ const Navbar: React.FC<NavbarProps> = ({ onSignIn, onRegister }) => {
 
                     {/* User Info or Register/Sign In Buttons */}
                     <div className="flex items-center gap-6">
-                        {user ? (
+                        {loginState ? (
                             // Display user's name and logout icon if logged in
                             <div className="flex items-center gap-4">
-                                <p className="font-bold text-gray-700">{user.name}</p>
+                                {user ? (<p className="font-bold text-gray-700">{user.name}</p>): (<BarLoader color="black"/>)}
                                 <FiLogOut
                                     onClick={handleLogout}
                                     className="text-red-500 text-2xl cursor-pointer transition transform hover:scale-110"
@@ -162,7 +169,7 @@ const Navbar: React.FC<NavbarProps> = ({ onSignIn, onRegister }) => {
                         </NavLink>
 
                         {/* Register and Sign In Buttons for Mobile */}
-                        {!user && (
+                        {!isLogin && (
                             <div className="mt-auto p-6">
                                 <Link
                                     to="/register"

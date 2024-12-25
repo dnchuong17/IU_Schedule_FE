@@ -97,7 +97,6 @@ const CourseTable: React.FC<CourseTableProps> = ({
     setInputText(event.target.value);
   };
 
-
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -223,7 +222,6 @@ const CourseTable: React.FC<CourseTableProps> = ({
     onSelectionChange(newCoursesMap);
     setCoursesMap(newCoursesMap);
   };
-
 
   const toggleClassStateHandler = (courseId: string, classId: string) => {
     setCoursesMap((prevCoursesMap) => {
