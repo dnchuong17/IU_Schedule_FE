@@ -36,18 +36,42 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
 
   const handleSave = async () => {
     const api = new Api();
-    const studentId = localStorage.getItem("student_id") || undefined;
+    const studentId = localStorage.getItem("student_id");
+    const userId = localStorage.getItem("user_id");
+
+    if (!userId) {
+      toast.error("User ID is missing. Please login again!", {
+        autoClose: 3000,
+      });
+      return;
+    }
+
+
+    if (!studentId) {
+      toast.error("Student ID is missing. Please login again!", {
+        autoClose: 3000,
+      });
+      return;
+    }
+
+    // Convert userId to number
+    const numericUserId = Number(userId);
+    if (isNaN(numericUserId)) {
+      toast.error("Invalid User ID. Please login again!", {
+        autoClose: 3000,
+      });
+      return;
+    }
+
 
     // Process and flatten the schedule into the desired structure
     const listOfCourses = completeSchedule.flatMap((classObj) => {
       const { classObject } = classObj;
 
-      // Ensure `date` is an array
       const dates = Array.isArray(classObject.date)
           ? classObject.date
           : [classObject.date];
 
-      // Map over the dates to create a flattened structure
       return dates.map((date, index) => {
         const location = Array.isArray(classObject.location)
             ? classObject.location[index] || classObject.location[0]
@@ -59,7 +83,7 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
           courseID: classObject.courseID,
           courseName: classObject.courseName,
           credits: parseInt(classObject.credits, 10),
-          date: translateDayToVietnamese(date), // Áp dụng hàm chuyển đổi
+          date: translateDayToVietnamese(date),
           startPeriod: classObject.startPeriod[index] || classObject.startPeriod[0],
           periodsCount: classObject.periodsCount[index] || classObject.periodsCount[0],
           location: location,
@@ -68,46 +92,62 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
               : classObject.lecturer,
           isActive: classObject.isActive,
           isLab: isLab,
-          isDeleted: false, // Add default value for isDeleted
+          isDeleted: false,
         };
       });
     });
 
-    // Sắp xếp theory trước lab
     const sortedCourses = listOfCourses.sort((a, b) => {
       return a.isLab === b.isLab ? 0 : a.isLab ? 1 : -1;
     });
 
-    // Debugging: Check the sorted list of courses
     console.log("Sorted List of Courses:", sortedCourses);
 
-    const payload: scheduleRequest = {
-      studentId: studentId,
-      templateId: null,
-      listOfCourses: sortedCourses,
-    };
-
-    console.log("API Payload:", payload);
-
     try {
+      let templateId: number | null = null;
+      const storedTemplateId = localStorage.getItem("templateId");
+
+
+      if (storedTemplateId) {
+        templateId = Number(storedTemplateId); // Convert string to number
+      }
+
+
+      if (!templateId) {
+        const existingTemplates = await api.getTemplateId(numericUserId);
+
+        if (Array.isArray(existingTemplates) && existingTemplates.length === 1) {
+          templateId = existingTemplates[0];
+        } else {
+          const newTemplateResponse = await api.createNewSchedule({ studentId });
+          templateId = newTemplateResponse.newTemplateId;
+          localStorage.setItem("templateId", String(templateId));
+        }
+      }
+
+      if (templateId === null) {
+        throw new Error("Template ID is null. Ensure it is set properly.");
+      }
+
+      const payload: scheduleRequest = {
+        studentId: studentId,
+        templateId: templateId,
+        listOfCourses: sortedCourses,
+      };
+
       const response = await api.createNewSchedule(payload);
-      console.log("Schedule saved successfully:", response);
       toast.success("Schedule saved successfully!", { autoClose: 3000 });
 
-      const newTemplateId = response.newTemplateId;
-      if (newTemplateId) {
-        console.log("Received templateId:", newTemplateId);
-        localStorage.setItem("templateId", newTemplateId.toString());
-
+      if (response.newTemplateId) {
+        localStorage.setItem("templateId", response.newTemplateId.toString());
         toast.success(
-            `Schedule created successfully! Template ID: ${newTemplateId}`,
+            `Schedule created successfully! Template ID: ${response.newTemplateId}`,
             { autoClose: 3000 }
         );
       } else {
         toast.error("Schedule created, but no Template ID was returned.", {
           autoClose: 3000,
         });
-        console.warn("Template ID is missing in the response:", response);
       }
     } catch (error) {
       console.error("Failed to save schedule:", error);

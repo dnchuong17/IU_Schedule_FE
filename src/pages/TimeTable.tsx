@@ -39,7 +39,7 @@ const Timetable: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [customEvents, setCustomEvents] = useState<{ [key: string]: string }>(
-    {}
+      {}
   );
   const [isLoggedIn] = useState<boolean>(!!localStorage.getItem("user_id"));
 
@@ -216,7 +216,7 @@ const Timetable: React.FC = () => {
               </div>
           )}
         </div>
-    </div>
+      </div>
   );
 };
 
