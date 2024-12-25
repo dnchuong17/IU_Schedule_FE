@@ -134,11 +134,25 @@ const ScheduleView: React.FC = () => {
         return;
       }
 
+      // Use only the first template ID
+      const firstTemplateId = user.scheduler_template_ids[0];
+      const templateData = await api.getTemplateBySchedulerId(firstTemplateId);
+
+
+      if (!templateData || !templateData.length) {
+        toast.error("No schedule data found!", { autoClose: 3000 });
+        return;
+      }
+
+
+
+
       const allTemplates = await Promise.all(
           user.scheduler_template_ids.map((schedulerId: number) =>
               api.getTemplateBySchedulerId(schedulerId)
           )
       );
+
 
       const flattenedTemplates = allTemplates.flat();
       if (!flattenedTemplates.length) {
@@ -155,6 +169,8 @@ const ScheduleView: React.FC = () => {
       setLoading(false);
     }
   };
+
+
 
   const findSubject = (
       day: string,
