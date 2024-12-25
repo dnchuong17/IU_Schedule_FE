@@ -4,7 +4,7 @@ import { Api } from "@/utils/api.ts";
 import "react-toastify/dist/ReactToastify.css";
 import DeadlinePopUp from "../Schedule/DeadlinePopUp";
 import NotePopUp from "../Schedule/NotePopUp";
-import { FaTrash } from "react-icons/fa"; // Importing FontAwesome trash icon
+// import { FaTrash } from "react-icons/fa"; // Importing FontAwesome trash icon
 
 const daysOfWeek = [
   "Monday",
@@ -28,6 +28,7 @@ const dayMapping: { [key: string]: string } = {
 };
 
 type ScheduleEntry = {
+  id: number;
   days_in_week: string;
   start_period: string;
   periods: number;
@@ -37,7 +38,15 @@ type ScheduleEntry = {
   theory_location: string;
   course_value_id: number;
 };
-
+type Note = {
+  id: number;
+  content: string;
+  courseValues: {
+    id: number;
+    lecture?: string;
+    location?: string;
+  };
+};
 type Deadline = {
   UID: number;
   is_Active: boolean;
@@ -64,7 +73,7 @@ const ScheduleView: React.FC = () => {
     course: ScheduleEntry;
   } | null>(null);
 
-  const [popupData, setPopupData] = useState<{
+  const [, setPopupData] = useState<{
     position: { top: number; left: number } | null;
     deadlines: Deadline[] | null;
   } | null>(null);
@@ -72,6 +81,11 @@ const ScheduleView: React.FC = () => {
   const [popupPosition, setPopupPosition] = useState<{
     top: number;
     left: number;
+  } | null>(null);
+
+  const [popupNote, setPopupNote] = useState<{
+    position: { top: number; left: number } | null;
+    notes: Note[] | null;
   } | null>(null);
 
   const api = new Api();
@@ -174,32 +188,53 @@ const ScheduleView: React.FC = () => {
   };
 
   //Hover to show deadline
-
-  const fetchAndShowDeadlines = async (
-    entry: ScheduleEntry,
-    event: React.MouseEvent
-  ) => {
+  const fetchAndShowNotes = async (id: number) => {
     try {
-      const rect = (event.target as HTMLElement).getBoundingClientRect();
-      const response = await api.getDeadline(entry.course_value_id);
-      setPopupData({
+      const newNoteId = localStorage.getItem("newNoteId");
+      const noteId = newNoteId ? parseInt(newNoteId) : id;
+      const response = await api.getNoteById(noteId);
+      console.log("Fetched note:", response);
+      setPopupNote({
         position: {
-          top: rect.bottom + window.scrollY,
-          left: rect.left + window.scrollX,
+          top: popupPosition?.top || 0,
+          left: popupPosition?.left || 0,
         },
-        deadlines: response?.deadlines || [],
+        notes: response ? [response] : [],
       });
     } catch (error) {
-      //   toast.error("Failed to fetch deadlines for this course!", {
-      //     autoClose: 3000,
-      //   });
-      //   setPopupData(null);
+      console.error("Failed to fetch notes!", error);
     }
   };
 
-  const hidePopup = () => {
-    setPopupData(null);
-  };
+  // const fetchAndShowDeadlines = async (
+  //   entry: ScheduleEntry,
+  //   event: React.MouseEvent
+  // ) => {
+  //   try {
+  //     const rect = (event.target as HTMLElement).getBoundingClientRect();
+  //     let response = { deadlines: [] };
+  //     if (entry.theory_course_value_id !== null) {
+  //       response = await api.getDeadline(Number(entry.theory_course_value_id));
+  //       console.log("Deadlines:", response);
+  //     }
+  //     setPopupData({
+  //       position: {
+  //         top: rect.bottom + window.scrollY,
+  //         left: rect.left + window.scrollX,
+  //       },
+  //       deadlines: response?.deadlines || [],
+  //     });
+  //   } catch (error) {
+  //     //   toast.error("Failed to fetch deadlines for this course!", {
+  //     //     autoClose: 3000,
+  //     //   });
+  //     //   setPopupData(null);
+  //   }
+  // };
+
+  // const hidePopup = () => {
+  //   setPopupData(null);
+  // };
 
   return (
     <div className="text-center font-sans p-6">
@@ -248,10 +283,8 @@ const ScheduleView: React.FC = () => {
                           className="p-2 border bg-yellow-100 text-sm font-medium text-gray-800 cursor-pointer"
                           style={{ gridRow: `span ${entry.periods}` }}
                           onClick={(event) => handleCourseClick(entry, event)}
-                          onMouseEnter={(event) =>
-                            fetchAndShowDeadlines(entry, event)
-                          }
-                          onMouseLeave={hidePopup}
+                          onMouseEnter={() => fetchAndShowNotes(entry.id)} // Pass the correct ID
+                          onMouseLeave={() => setPopupNote(null)} // Hide the popup on mouse leave
                         >
                           <strong>{entry.course_name}</strong>
                           <br />
@@ -306,7 +339,11 @@ const ScheduleView: React.FC = () => {
       {activePopup && activePopup.type === "deadline" && (
         <DeadlinePopUp
           onClose={() => setActivePopup(null)}
-          courseValueId={activePopup.course.course_value_id}
+          courseValueId={
+            activePopup.course.theory_course_value_id
+              ? Number(activePopup.course.theory_course_value_id)
+              : 0
+          }
         />
       )}
 
@@ -319,40 +356,63 @@ const ScheduleView: React.FC = () => {
           }}
         >
           <NotePopUp
-            courseValueId={activePopup.course.course_value_id}
+            courseValueId={
+              activePopup.course.theory_course_value_id
+                ? Number(activePopup.course.theory_course_value_id)
+                : 0
+            }
             onClose={() => setActivePopup(null)}
+            fetchAndShowNotes={fetchAndShowNotes}
+            onNoteCreated={(id) => fetchAndShowNotes(id)} // Pass the callback
           />
         </div>
       )}
 
-      {popupData && popupData.deadlines && popupData.deadlines.length > 0 && (
+      {popupNote && popupNote.notes && popupNote.notes.length > 0 && (
         <div
           className="absolute bg-white p-4 rounded shadow-lg border"
           style={{
-            top: popupData.position?.top,
-            left: popupData.position?.left,
+            top: popupNote.position?.top,
+            left: popupNote.position?.left,
           }}
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
           onClick={(e) => e.stopPropagation()} // prevent parent from hiding popup on click
         >
-          <h3 className="text-lg font-bold mb-2">DeadlinesEEEE</h3>
+          <button
+            className="absolute top-2 right-2 text-gray-600 hover:text-gray-900 focus:outline-none"
+            onClick={() => setPopupNote(null)} // Close the popup
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+          <h3 className="text-lg font-bold mb-2">Notes</h3>
           <ul>
-            {popupData.deadlines.map((deadline) => (
-              <li key={deadline.UID} className="mb-1">
+            {popupNote.notes.map((note) => (
+              <li key={note.id} className="mb-1">
                 <div className="flex justify-between">
-                  <button
-                    onClick={() => {
-                      deadline.is_Active = false;
-                    }}
-                    className="text-red-500"
-                  >
-                    <FaTrash />
-                  </button>
-                  <strong>{deadline.deadline_type}:Eeee</strong>{" "}
-                </div>{" "}
-                {deadline.description} <br />
-                <em>Due: {new Date(deadline.deadline).toLocaleString()}</em>
+                  <strong>Lecture:</strong>{" "}
+                  {note.courseValues?.lecture || "N/A"}
+                </div>
+                <div>
+                  <strong>Location:</strong>{" "}
+                  {note.courseValues?.location || "N/A"}
+                </div>
+                <div>
+                  <strong>Content:</strong> {note.content}
+                </div>
               </li>
             ))}
           </ul>
