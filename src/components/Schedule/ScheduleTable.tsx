@@ -37,6 +37,15 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
   const handleSave = async () => {
     const api = new Api();
     const studentId = localStorage.getItem("student_id");
+    const userId = localStorage.getItem("user_id");
+
+    if (!userId) {
+      toast.error("User ID is missing. Please login again!", {
+        autoClose: 3000,
+      });
+      return;
+    }
+
 
     if (!studentId) {
       toast.error("Student ID is missing. Please login again!", {
@@ -44,6 +53,16 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
       });
       return;
     }
+
+    // Convert userId to number
+    const numericUserId = Number(userId);
+    if (isNaN(numericUserId)) {
+      toast.error("Invalid User ID. Please login again!", {
+        autoClose: 3000,
+      });
+      return;
+    }
+
 
     // Process and flatten the schedule into the desired structure
     const listOfCourses = completeSchedule.flatMap((classObj) => {
@@ -85,22 +104,23 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
     console.log("Sorted List of Courses:", sortedCourses);
 
     try {
-      // Get the current template IDs from localStorage or API
-      let templateId = localStorage.getItem("templateId");
-      templateId = templateId !== null ? Number(templateId) : null;
+      let templateId: number | null = null;
+      const storedTemplateId = localStorage.getItem("templateId");
+
+
+      if (storedTemplateId) {
+        templateId = Number(storedTemplateId); // Convert string to number
+      }
+
 
       if (!templateId) {
-        const existingTemplates = await api.getTemplateId(studentId);
+        const existingTemplates = await api.getTemplateId(numericUserId);
 
         if (Array.isArray(existingTemplates) && existingTemplates.length === 1) {
-          // Only one template exists, use its ID
           templateId = existingTemplates[0];
         } else {
-          // Create a new template and get its ID
           const newTemplateResponse = await api.createNewSchedule({ studentId });
-
           templateId = newTemplateResponse.newTemplateId;
-          console.log("Created new template with ID:", templateId);
           localStorage.setItem("templateId", String(templateId));
         }
       }
@@ -109,21 +129,16 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
         throw new Error("Template ID is null. Ensure it is set properly.");
       }
 
-      // Prepare the payload
       const payload: scheduleRequest = {
         studentId: studentId,
-        templateId: templateId ?? 0, // Ensure templateId is a valid number, fallback to 0
+        templateId: templateId,
         listOfCourses: sortedCourses,
       };
 
-      console.log("API Payload:", payload);
-
       const response = await api.createNewSchedule(payload);
-      console.log("Schedule saved successfully:", response);
       toast.success("Schedule saved successfully!", { autoClose: 3000 });
 
       if (response.newTemplateId) {
-        console.log("Received templateId:", response.newTemplateId);
         localStorage.setItem("templateId", response.newTemplateId.toString());
         toast.success(
             `Schedule created successfully! Template ID: ${response.newTemplateId}`,
@@ -133,7 +148,6 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
         toast.error("Schedule created, but no Template ID was returned.", {
           autoClose: 3000,
         });
-        console.warn("Template ID is missing in the response:", response);
       }
     } catch (error) {
       console.error("Failed to save schedule:", error);
@@ -143,7 +157,6 @@ const ScheduleTable = ({ completeSchedule, center }: ScheduleTableProps) => {
       );
     }
   };
-
 
   const rows = rowsProps.map((cellsProps, index) => (
       <Row cellsProps={cellsProps} key={index}></Row>
