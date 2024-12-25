@@ -151,7 +151,6 @@ const ScheduleView: React.FC = () => {
           )
       );
 
-
       const flattenedTemplates = allTemplates.flat();
       if (!flattenedTemplates.length) {
         toast.error("No schedule data found!", { autoClose: 3000 });
