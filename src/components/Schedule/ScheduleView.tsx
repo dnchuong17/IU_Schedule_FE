@@ -159,9 +159,6 @@ const ScheduleView: React.FC = () => {
           user.scheduler_template_ids.map((schedulerId: number) =>
               api.getMainTemplateBySchedulerId(schedulerId)
           )
-        user.scheduler_template_ids.map((schedulerId: number) =>
-          api.getTemplateBySchedulerId(schedulerId)
-        )
       );
 
       const flattenedTemplates = allTemplates.flat();
